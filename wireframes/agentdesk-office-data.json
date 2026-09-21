@@ -1,0 +1,776 @@
+{
+  "geometry": {
+    "tileWidth": 420,
+    "tileHeight": 280,
+    "tileStep": {
+      "x": 180,
+      "y": 164
+    },
+    "floorProjection": {
+      "back": {
+        "x": 50,
+        "y": 30
+      },
+      "wallOffsetY": 8,
+      "axisRight": {
+        "x": 50,
+        "y": 30
+      },
+      "axisLeft": {
+        "x": -50,
+        "y": 30
+      }
+    }
+  },
+  "visualCalibration": {
+    "managed": {
+      "furniture": {
+        "room": {
+          "x": 50,
+          "y": 50,
+          "scale": 0.9
+        },
+        "steward-desk": {
+          "x": 52.98412696815263,
+          "y": 49.156641612995585,
+          "scale": 0.7
+        },
+        "worker-left": {
+          "x": 34.630832848203596,
+          "y": 59.50320457249621,
+          "scale": 0.8
+        },
+        "worker-right": {
+          "x": 69.4271748681553,
+          "y": 61.99206509249299,
+          "scale": 0.8
+        },
+        "worker-front-left": {
+          "x": 45.38504018364378,
+          "y": 68.96852777304913,
+          "scale": 0.8
+        },
+        "worker-front-right": {
+          "x": 58.433583919963816,
+          "y": 70.51754354515407,
+          "scale": 0.8
+        }
+      },
+      "roles": {
+        "clerivan": {
+          "working": {
+            "x": 54.60976205282725,
+            "y": 38.86743947420915,
+            "scale": 0.7
+          },
+          "standing": {
+            "x": 48.809153749805944,
+            "y": 43.00028189380333,
+            "scale": 0.7
+          }
+        },
+        "aki": {
+          "working": {
+            "x": 32.508408363677226,
+            "y": 52.64578940615588,
+            "scale": 0.7
+          },
+          "standing": {
+            "x": 30.454654582220652,
+            "y": 56.66805790696099,
+            "scale": 0.7
+          }
+        },
+        "bryn": {
+          "working": {
+            "x": 68.59080926329568,
+            "y": 55.43052308388911,
+            "scale": 0.65
+          },
+          "standing": {
+            "x": 68.90106277988536,
+            "y": 59.52241706746856,
+            "scale": 0.7
+          }
+        },
+        "mira": {
+          "working": {
+            "x": 43.6,
+            "y": 61.71901705867537,
+            "scale": 0.7
+          },
+          "standing": {
+            "x": 43.8,
+            "y": 68.6020566984289,
+            "scale": 0.7
+          }
+        },
+        "vera": {
+          "working": {
+            "x": 57.72366034497739,
+            "y": 64.15567157503772,
+            "scale": 0.7
+          },
+          "standing": {
+            "x": 56.49707578111429,
+            "y": 69.14160223986799,
+            "scale": 0.7
+          }
+        }
+      },
+      "bubbles": {
+        "clerivan": {
+          "x": 49.54748187931514,
+          "y": 4.796016494799094,
+          "scale": 0.7
+        },
+        "aki": {
+          "x": 23.362477360330818,
+          "y": 24.472988614340675,
+          "scale": 0.7
+        },
+        "bryn": {
+          "x": 75.48883656903851,
+          "y": 24.786274080733552,
+          "scale": 0.7
+        },
+        "mira": {
+          "x": 34.94699563770929,
+          "y": 86.04623994383219,
+          "scale": 0.7
+        },
+        "vera": {
+          "x": 68.14869071117754,
+          "y": 86.03926518416769,
+          "scale": 0.7
+        }
+      }
+    },
+    "direct": {
+      "furniture": {
+        "room": {
+          "x": 50,
+          "y": 50,
+          "scale": 0.9
+        },
+        "worker-left": {
+          "x": 34.630832848203596,
+          "y": 59.50320457249621,
+          "scale": 0.8
+        },
+        "worker-right": {
+          "x": 69.4271748681553,
+          "y": 61.99206509249299,
+          "scale": 0.8
+        },
+        "worker-front-left": {
+          "x": 45.38504018364378,
+          "y": 68.96852777304913,
+          "scale": 0.8
+        },
+        "worker-front-right": {
+          "x": 58.433583919963816,
+          "y": 70.51754354515407,
+          "scale": 0.8
+        }
+      },
+      "roles": {
+        "aki": {
+          "working": {
+            "x": 32.508408363677226,
+            "y": 52.64578940615588,
+            "scale": 0.7
+          },
+          "standing": {
+            "x": 30.454654582220652,
+            "y": 56.66805790696099,
+            "scale": 0.7
+          }
+        },
+        "bryn": {
+          "working": {
+            "x": 68.59080926329568,
+            "y": 55.43052308388911,
+            "scale": 0.65
+          },
+          "standing": {
+            "x": 68.90106277988536,
+            "y": 59.52241706746856,
+            "scale": 0.7
+          }
+        },
+        "mira": {
+          "working": {
+            "x": 43.6,
+            "y": 61.71901705867537,
+            "scale": 0.7
+          },
+          "standing": {
+            "x": 43.8,
+            "y": 68.6020566984289,
+            "scale": 0.7
+          }
+        },
+        "vera": {
+          "working": {
+            "x": 57.72366034497739,
+            "y": 64.15567157503772,
+            "scale": 0.7
+          },
+          "standing": {
+            "x": 56.49707578111429,
+            "y": 69.14160223986799,
+            "scale": 0.7
+          }
+        }
+      },
+      "bubbles": {
+        "aki": {
+          "x": 23.362477360330818,
+          "y": 24.472988614340675,
+          "scale": 0.7
+        },
+        "bryn": {
+          "x": 75.48883656903851,
+          "y": 24.786274080733552,
+          "scale": 0.7
+        },
+        "mira": {
+          "x": 24.33714061468373,
+          "y": 85.29435262482237,
+          "scale": 0.7
+        },
+        "vera": {
+          "x": 76.33582745050956,
+          "y": 84.91144376629735,
+          "scale": 0.7
+        }
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "id": "single-managed",
+      "label": "單一 Managed",
+      "officeIds": [
+        "managed-01"
+      ],
+      "defaultAgent": "clerivan"
+    },
+    {
+      "id": "dual-managed",
+      "label": "雙 Clerivan",
+      "officeIds": [
+        "managed-01",
+        "managed-02"
+      ],
+      "defaultAgent": "clerivan-02"
+    },
+    {
+      "id": "managed-direct",
+      "label": "Managed + Direct",
+      "officeIds": [
+        "managed-01",
+        "direct-01"
+      ],
+      "defaultAgent": "clerivan"
+    },
+    {
+      "id": "direct-overflow",
+      "label": "Direct 滿位增生",
+      "officeIds": [
+        "direct-01",
+        "direct-02"
+      ],
+      "defaultAgent": "nora"
+    }
+  ],
+  "offices": [
+    {
+      "id": "managed-01",
+      "name": "Clerivan / AgentDesk",
+      "typeLabel": "managed office",
+      "left": "330px",
+      "top": "110px",
+      "z": 6,
+      "furniture": "managed",
+      "seats": [
+        {
+          "id": "steward-desk",
+          "furnitureId": "steward-desk",
+          "kind": "steward",
+          "floorX": 0.26,
+          "floorY": 0.26,
+          "bubble": {
+            "x": "50%",
+            "y": "-10px",
+            "transform": "translate(-50%, -100%)"
+          }
+        },
+        {
+          "id": "worker-left",
+          "furnitureId": "worker-left",
+          "kind": "worker",
+          "floorX": 0.24,
+          "floorY": 0.64,
+          "bubble": {
+            "x": "-10px",
+            "y": "-8px",
+            "transform": "translate(-100%, -100%)"
+          }
+        },
+        {
+          "id": "worker-right",
+          "furnitureId": "worker-right",
+          "kind": "worker",
+          "floorX": 0.64,
+          "floorY": 0.24,
+          "bubble": {
+            "x": "calc(100% + 10px)",
+            "y": "-8px",
+            "transform": "translate(0, -100%)"
+          }
+        },
+        {
+          "id": "worker-front-left",
+          "furnitureId": "worker-front-left",
+          "kind": "worker",
+          "floorX": 0.54,
+          "floorY": 0.74,
+          "bubble": {
+            "x": "-10px",
+            "y": "48px",
+            "transform": "translate(-100%, 0)"
+          }
+        },
+        {
+          "id": "worker-front-right",
+          "furnitureId": "worker-front-right",
+          "kind": "worker",
+          "floorX": 0.74,
+          "floorY": 0.54,
+          "bubble": {
+            "x": "calc(100% + 10px)",
+            "y": "48px",
+            "transform": "translate(0, 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "direct-01",
+      "name": "Direct Office 1",
+      "typeLabel": "direct office",
+      "left": "510px",
+      "top": "274px",
+      "z": 7,
+      "furniture": "direct",
+      "seats": [
+        {
+          "id": "worker-left",
+          "furnitureId": "worker-left",
+          "kind": "worker",
+          "floorX": 0.24,
+          "floorY": 0.64,
+          "bubble": {
+            "x": "-10px",
+            "y": "-8px",
+            "transform": "translate(-100%, -100%)"
+          }
+        },
+        {
+          "id": "worker-right",
+          "furnitureId": "worker-right",
+          "kind": "worker",
+          "floorX": 0.64,
+          "floorY": 0.24,
+          "bubble": {
+            "x": "calc(100% + 10px)",
+            "y": "-8px",
+            "transform": "translate(0, -100%)"
+          }
+        },
+        {
+          "id": "worker-front-left",
+          "furnitureId": "worker-front-left",
+          "kind": "worker",
+          "floorX": 0.54,
+          "floorY": 0.74,
+          "bubble": {
+            "x": "-10px",
+            "y": "48px",
+            "transform": "translate(-100%, 0)"
+          }
+        },
+        {
+          "id": "worker-front-right",
+          "furnitureId": "worker-front-right",
+          "kind": "worker",
+          "floorX": 0.74,
+          "floorY": 0.54,
+          "bubble": {
+            "x": "calc(100% + 10px)",
+            "y": "48px",
+            "transform": "translate(0, 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "managed-02",
+      "name": "Clerivan / Research",
+      "typeLabel": "managed office",
+      "left": "150px",
+      "top": "274px",
+      "z": 5,
+      "furniture": "managed",
+      "seats": [
+        {
+          "id": "steward-desk",
+          "furnitureId": "steward-desk",
+          "kind": "steward",
+          "floorX": 0.26,
+          "floorY": 0.26,
+          "bubble": {
+            "x": "50%",
+            "y": "-10px",
+            "transform": "translate(-50%, -100%)"
+          }
+        },
+        {
+          "id": "worker-left",
+          "furnitureId": "worker-left",
+          "kind": "worker",
+          "floorX": 0.24,
+          "floorY": 0.64,
+          "bubble": {
+            "x": "-10px",
+            "y": "-8px",
+            "transform": "translate(-100%, -100%)"
+          }
+        },
+        {
+          "id": "worker-right",
+          "furnitureId": "worker-right",
+          "kind": "worker",
+          "floorX": 0.64,
+          "floorY": 0.24,
+          "bubble": {
+            "x": "calc(100% + 10px)",
+            "y": "-8px",
+            "transform": "translate(0, -100%)"
+          }
+        },
+        {
+          "id": "worker-front-left",
+          "furnitureId": "worker-front-left",
+          "kind": "worker",
+          "floorX": 0.54,
+          "floorY": 0.74,
+          "bubble": {
+            "x": "-10px",
+            "y": "48px",
+            "transform": "translate(-100%, 0)"
+          }
+        },
+        {
+          "id": "worker-front-right",
+          "furnitureId": "worker-front-right",
+          "kind": "worker",
+          "floorX": 0.74,
+          "floorY": 0.54,
+          "bubble": {
+            "x": "calc(100% + 10px)",
+            "y": "48px",
+            "transform": "translate(0, 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "direct-02",
+      "name": "Direct Office 2",
+      "typeLabel": "overflow office",
+      "left": "330px",
+      "top": "438px",
+      "z": 8,
+      "furniture": "direct",
+      "seats": [
+        {
+          "id": "worker-left",
+          "furnitureId": "worker-left",
+          "kind": "worker",
+          "floorX": 0.24,
+          "floorY": 0.64,
+          "bubble": {
+            "x": "-10px",
+            "y": "-8px",
+            "transform": "translate(-100%, -100%)"
+          }
+        },
+        {
+          "id": "worker-right",
+          "furnitureId": "worker-right",
+          "kind": "worker",
+          "floorX": 0.64,
+          "floorY": 0.24,
+          "bubble": {
+            "x": "calc(100% + 10px)",
+            "y": "-8px",
+            "transform": "translate(0, -100%)"
+          }
+        },
+        {
+          "id": "worker-front-left",
+          "furnitureId": "worker-front-left",
+          "kind": "worker",
+          "floorX": 0.54,
+          "floorY": 0.74,
+          "bubble": {
+            "x": "-10px",
+            "y": "-12px",
+            "transform": "translate(-100%, -100%)"
+          }
+        },
+        {
+          "id": "worker-front-right",
+          "furnitureId": "worker-front-right",
+          "kind": "worker",
+          "floorX": 0.74,
+          "floorY": 0.54,
+          "bubble": {
+            "x": "calc(100% + 10px)",
+            "y": "-12px",
+            "transform": "translate(0, -100%)"
+          }
+        }
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "id": "clerivan",
+      "officeId": "managed-01",
+      "name": "Clerivan",
+      "kind": "steward",
+      "status": "working",
+      "duration": "18m",
+      "message": "整理回報簿，等下輪確認",
+      "hair": "#e8c783",
+      "coat": "#2d3e62",
+      "x": "49%",
+      "y": "45%",
+      "bubbleX": "50%",
+      "bubbleY": "-3px",
+      "bubbleTransform": "translate(-50%, -100%)"
+    },
+    {
+      "id": "aki",
+      "officeId": "managed-01",
+      "name": "Aki",
+      "kind": "worker",
+      "status": "waiting",
+      "duration": "7m",
+      "message": "等 Glen 確認命名",
+      "hair": "#533d35",
+      "coat": "#3c536d",
+      "x": "24%",
+      "y": "70%",
+      "bubbleX": "18%",
+      "bubbleY": "-8px",
+      "bubbleTransform": "translate(-18%, -100%)"
+    },
+    {
+      "id": "bryn",
+      "officeId": "managed-01",
+      "name": "Bryn",
+      "kind": "worker",
+      "status": "blocked",
+      "duration": "12m",
+      "message": "缺一張驗收截圖",
+      "hair": "#77503b",
+      "coat": "#4d6658",
+      "x": "72%",
+      "y": "66%",
+      "bubbleX": "82%",
+      "bubbleY": "-8px",
+      "bubbleTransform": "translate(-82%, -100%)"
+    },
+    {
+      "id": "mira",
+      "officeId": "managed-01",
+      "name": "Mira",
+      "kind": "worker",
+      "status": "done",
+      "duration": "done",
+      "message": "provider 整理完成",
+      "hair": "#70463b",
+      "coat": "#6a5b4b",
+      "x": "63%",
+      "y": "25%",
+      "bubbleX": "86%",
+      "bubbleY": "-4px",
+      "bubbleTransform": "translate(-86%, -100%)"
+    },
+    {
+      "id": "nora",
+      "officeId": "direct-01",
+      "name": "Nora",
+      "kind": "worker",
+      "status": "working",
+      "duration": "9m",
+      "message": "整理素材 brief",
+      "hair": "#6a4b3e",
+      "coat": "#536b61",
+      "x": "25%",
+      "y": "67%",
+      "bubbleX": "18%",
+      "bubbleY": "-8px",
+      "bubbleTransform": "translate(-18%, -100%)"
+    },
+    {
+      "id": "orin",
+      "officeId": "direct-01",
+      "name": "Orin",
+      "kind": "worker",
+      "status": "waiting",
+      "duration": "4m",
+      "message": "等 Glen 分派下一件事",
+      "hair": "#57413a",
+      "coat": "#5d536a",
+      "x": "54%",
+      "y": "53%",
+      "bubbleX": "50%",
+      "bubbleY": "-3px",
+      "bubbleTransform": "translate(-50%, -100%)"
+    },
+    {
+      "id": "vera",
+      "officeId": "direct-01",
+      "name": "Vera",
+      "kind": "worker",
+      "status": "done",
+      "duration": "done",
+      "message": "節奏檢查完成",
+      "hair": "#876046",
+      "coat": "#596c73",
+      "x": "77%",
+      "y": "66%",
+      "bubbleX": "86%",
+      "bubbleY": "-8px",
+      "bubbleTransform": "translate(-86%, -100%)"
+    },
+    {
+      "id": "ian",
+      "officeId": "direct-01",
+      "name": "Ian",
+      "kind": "worker",
+      "status": "blocked",
+      "duration": "14m",
+      "message": "等風格拍板",
+      "hair": "#3f3836",
+      "coat": "#576b80",
+      "x": "65%",
+      "y": "25%",
+      "bubbleX": "86%",
+      "bubbleY": "-4px",
+      "bubbleTransform": "translate(-86%, -100%)"
+    },
+    {
+      "id": "clerivan-02",
+      "officeId": "managed-02",
+      "name": "Clerivan II",
+      "kind": "steward",
+      "status": "waiting",
+      "duration": "6m",
+      "message": "等研究室確認方向",
+      "hair": "#e8c783",
+      "coat": "#354766",
+      "x": "49%",
+      "y": "45%",
+      "bubbleX": "50%",
+      "bubbleY": "-3px",
+      "bubbleTransform": "translate(-50%, -100%)"
+    },
+    {
+      "id": "rhea",
+      "officeId": "managed-02",
+      "name": "Rhea",
+      "kind": "worker",
+      "status": "working",
+      "duration": "11m",
+      "message": "整理研究筆記",
+      "hair": "#6b4a3a",
+      "coat": "#536b61",
+      "x": "24%",
+      "y": "70%",
+      "bubbleX": "18%",
+      "bubbleY": "-8px",
+      "bubbleTransform": "translate(-18%, -100%)"
+    },
+    {
+      "id": "noah",
+      "officeId": "managed-02",
+      "name": "Noah",
+      "kind": "worker",
+      "status": "done",
+      "duration": "done",
+      "message": "資料索引完成",
+      "hair": "#4d3b35",
+      "coat": "#5d536a",
+      "x": "72%",
+      "y": "66%",
+      "bubbleX": "82%",
+      "bubbleY": "-8px",
+      "bubbleTransform": "translate(-82%, -100%)"
+    },
+    {
+      "id": "sena",
+      "officeId": "managed-02",
+      "name": "Sena",
+      "kind": "worker",
+      "status": "blocked",
+      "duration": "8m",
+      "message": "等一份來源文件",
+      "hair": "#805b45",
+      "coat": "#4d6658",
+      "x": "63%",
+      "y": "25%",
+      "bubbleX": "86%",
+      "bubbleY": "-4px",
+      "bubbleTransform": "translate(-86%, -100%)"
+    },
+    {
+      "id": "luca",
+      "officeId": "direct-02",
+      "name": "Luca",
+      "kind": "worker",
+      "status": "working",
+      "duration": "3m",
+      "message": "執行獨立任務",
+      "hair": "#543d36",
+      "coat": "#3c536d",
+      "x": "25%",
+      "y": "67%",
+      "bubbleX": "18%",
+      "bubbleY": "-8px",
+      "bubbleTransform": "translate(-18%, -100%)"
+    },
+    {
+      "id": "ivy",
+      "officeId": "direct-02",
+      "name": "Ivy",
+      "kind": "worker",
+      "status": "waiting",
+      "duration": "2m",
+      "message": "等待下一個指令",
+      "hair": "#795342",
+      "coat": "#596c73",
+      "x": "77%",
+      "y": "66%",
+      "bubbleX": "86%",
+      "bubbleY": "-8px",
+      "bubbleTransform": "translate(-86%, -100%)"
+    }
+  ]
+}

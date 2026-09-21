@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentDesk Office Calibration</title>
+  <style>
+    :root {
+      --paper: #f7efdf;
+      --paper-deep: #e9ddc7;
+      --ink: #2e302e;
+      --muted: #706d63;
+      --line: #cdbb9d;
+      --navy: #283750;
+      --brass: #a97d38;
+      --sage: #60735b;
+      --danger: #b65349;
+      --stage-width: 1260px;
+      --stage-height: 840px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 1180px;
+      margin: 0;
+      color: var(--ink);
+      background: #e8dece;
+      font-family: "Noto Sans TC", sans-serif;
+    }
+
+    button,
+    select,
+    textarea { font: inherit; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+      gap: 16px;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .control-panel {
+      align-self: start;
+      position: sticky;
+      top: 16px;
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      box-shadow: 0 12px 28px rgba(54, 41, 26, 0.14);
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .panel-note,
+    .selection-meta,
+    .calibration-status,
+    .check-result {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .panel-section {
+      display: grid;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(205, 187, 157, 0.78);
+    }
+
+    .panel-label {
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .role-list,
+    .button-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .role-row {
+      display: grid;
+      grid-template-columns: 1fr 104px;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+    }
+
+    .role-row label {
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .field,
+    .action-button {
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ink);
+      font-size: 11px;
+    }
+
+    .field { padding: 0 7px; }
+    .action-button { padding: 0 8px; cursor: pointer; }
+
+    .action-button:hover,
+    .action-button:focus-visible,
+    .field:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 2px;
+    }
+
+    .action-button.primary {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: var(--paper);
+    }
+
+    .action-button.danger { color: var(--danger); }
+
+    .selected-tools {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .coordinate-output {
+      width: 100%;
+      min-height: 176px;
+      padding: 8px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fffaf0;
+      color: var(--ink);
+      font-family: Consolas, monospace;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .stage-wrap {
+      min-width: 0;
+      min-height: calc(100vh - 32px);
+      overflow: auto;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: rgba(247, 239, 223, 0.72);
+    }
+
+    .stage-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .stage-heading small {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .stage {
+      position: relative;
+      width: var(--stage-width);
+      height: var(--stage-height);
+      background: rgba(255, 255, 255, 0.2);
+      isolation: isolate;
+    }
+
+    .stage-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.32;
+      background-image:
+        linear-gradient(rgba(40, 55, 80, 0.14) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(40, 55, 80, 0.14) 1px, transparent 1px);
+      background-size: 42px 42px;
+      pointer-events: none;
+    }
+
+    .calibration-object {
+      position: absolute;
+      left: var(--object-x);
+      top: var(--object-y);
+      transform: translate(-50%, -50%) scale(var(--object-scale, 1));
+      transform-origin: center center;
+      cursor: move;
+      user-select: none;
+    }
+
+    .calibration-object.is-selected {
+      outline: 2px solid var(--brass);
+      outline-offset: 4px;
+    }
+
+    .desk-object.is-selected,
+    .role-object.is-selected,
+    .bubble-object.is-selected {
+      z-index: 100;
+    }
+
+    .calibration-object img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .room-object {
+      z-index: 1;
+      width: var(--stage-width);
+      height: var(--stage-height);
+      pointer-events: auto;
+    }
+
+    .desk-object {
+      z-index: 12;
+      width: 435px;
+      height: 291px;
+    }
+
+    .desk-object[data-kind="steward"] { z-index: 11; width: 480px; height: 321px; }
+
+    .desk-object[data-kind="worker"] img { transform: scaleX(-1); }
+
+    .role-object {
+      z-index: 20;
+      width: 222px;
+      height: 324px;
+    }
+
+    .role-object[data-kind="steward"] { width: 276px; height: 414px; }
+
+    .role-object.is-working {
+      width: 168px;
+      height: 246px;
+    }
+
+    .role-object.is-working[data-kind="steward"] { width: 198px; height: 297px; }
+
+    .bubble-object {
+      z-index: 40;
+      width: 564px;
+      height: 204px;
+      padding: 18px 24px;
+      border: 3px solid rgba(169, 125, 56, 0.72);
+      background: rgba(247, 239, 223, 0.97);
+      box-shadow: 0 12px 24px rgba(54, 41, 26, 0.18);
+      color: var(--navy);
+      font-size: 30px;
+      line-height: 1.35;
+    }
+
+    .bubble-object.is-working {
+      width: 282px;
+      height: 180px;
+      padding: 16px 20px;
+      font-size: 26px;
+    }
+
+    .bubble-object strong,
+    .bubble-object span { display: block; }
+
+    .bubble-object strong { font-size: 1em; }
+    .bubble-object span { color: var(--muted); font-size: 0.78em; }
+
+    .object-tag {
+      position: absolute;
+      left: 0;
+      top: 100%;
+      margin-top: 4px;
+      padding: 3px 6px;
+      border: 1px solid rgba(169, 125, 56, 0.72);
+      background: rgba(247, 239, 223, 0.96);
+      color: var(--navy);
+      font-size: 18px;
+      line-height: 1.2;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .status-working { --state-color: #4e795f; }
+    .status-waiting { --state-color: #b3813f; }
+    .status-blocked { --state-color: #b65349; }
+    .status-done { --state-color: #4e795f; }
+    .status-idle { --state-color: #706d63; }
+
+    .object-tag::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 5px;
+      border-radius: 50%;
+      background: var(--state-color, var(--brass));
+      vertical-align: 1px;
+    }
+
+    .collision-warning {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    @media (max-height: 760px) {
+      .control-panel { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="control-panel" aria-label="Office calibration controls">
+      <div>
+        <h1>AgentDesk Office Calibration</h1>
+        <div class="panel-note">底圖與所有物件以 3 倍尺寸排列。拖曳物件調整位置，滾輪或按鈕調整大小。</div>
+      </div>
+
+      <div class="panel-section">
+        <label class="panel-label" for="officeSelect">校準房間</label>
+        <select class="field" id="officeSelect">
+          <option value="managed">Managed Office · Clerivan</option>
+          <option value="direct">Direct Office · 四位 worker</option>
+        </select>
+        <button class="action-button" id="copyManagedToDirect" type="button">套用 Managed 配置到 Direct（不含 Clerivan）</button>
+        <label class="panel-label" for="zoomSelect">觀看倍率</label>
+        <select class="field" id="zoomSelect">
+          <option value="0.62">62%</option>
+          <option value="0.76" selected>76%</option>
+          <option value="1">100%</option>
+        </select>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">角色狀態</div>
+        <div class="role-list" id="roleControls"></div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">目前選取物件</div>
+        <select class="field" id="objectSelect" aria-label="選取校準物件"></select>
+        <div class="selection-meta" id="selectionMeta">點擊底圖、桌椅、角色或泡泡開始校準。</div>
+        <div class="selected-tools">
+          <button class="action-button" id="scaleDown" type="button">縮小</button>
+          <button class="action-button" id="scaleUp" type="button">放大</button>
+          <button class="action-button" id="resetSelected" type="button">重設物件</button>
+          <button class="action-button danger" id="resetAll" type="button">重設全部</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="button-row">
+          <button class="action-button primary" id="checkAll" type="button">檢查 16 種狀態組合</button>
+          <button class="action-button" id="copyOutput" type="button">複製目前定位資料</button>
+        </div>
+        <div class="check-result" id="checkResult">尚未檢查組合。</div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">定位資料</div>
+        <textarea class="coordinate-output" id="coordinateOutput" readonly spellcheck="false"></textarea>
+      </div>
+
+      <div class="calibration-status" id="calibrationStatus" aria-live="polite"></div>
+    </aside>
+
+    <section class="stage-wrap" aria-label="3 倍等視角房間校準區">
+      <div class="stage-heading">
+        <span id="stageTitle">Managed Office · Clerivan</span>
+        <small>目前座標會即時寫入左側資料區</small>
+      </div>
+      <div class="stage" id="stage">
+        <div class="stage-grid" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "agentdesk-office-calibration-v1";
+    const stage = document.querySelector("#stage");
+    const officeSelect = document.querySelector("#officeSelect");
+    const zoomSelect = document.querySelector("#zoomSelect");
+    const roleControls = document.querySelector("#roleControls");
+    const objectSelect = document.querySelector("#objectSelect");
+    const selectionMeta = document.querySelector("#selectionMeta");
+    const coordinateOutput = document.querySelector("#coordinateOutput");
+    const checkResult = document.querySelector("#checkResult");
+    const calibrationStatus = document.querySelector("#calibrationStatus");
+    const stageTitle = document.querySelector("#stageTitle");
+
+    const assets = {
+      room: "../assets/generated/agentdesk-office-shell-v4-alpha.png",
+      workerDesk: "../assets/generated/agentdesk-worker-desk-set-v1-alpha.png",
+      stewardDesk: "../assets/generated/agentdesk-steward-desk-set-v1-alpha.png",
+      clerivanStanding: "../assets/generated/agentdesk-clerivan-chibi-v2-calm-alpha.png",
+      clerivanWorking: "../assets/generated/agentdesk-clerivan-working-v1-alpha.png",
+      workerStanding: {
+        aki: "../assets/generated/agentdesk-worker-aki-v1-alpha.png",
+        bryn: "../assets/generated/agentdesk-worker-bryn-v1-alpha.png",
+        mira: "../assets/generated/agentdesk-worker-mira-v1-alpha.png",
+        vera: "../assets/generated/agentdesk-worker-vera-v1-alpha.png"
+      },
+      workerWorking: {
+        aki: "../assets/generated/agentdesk-worker-aki-working-v2-alpha.png",
+        bryn: "../assets/generated/agentdesk-worker-bryn-working-v2-alpha.png",
+        mira: "../assets/generated/agentdesk-worker-mira-working-v2-alpha.png",
+        vera: "../assets/generated/agentdesk-worker-vera-working-v2-alpha.png"
+      }
+    };
+
+    const roles = [
+      { id: "clerivan", name: "Clerivan", kind: "steward", artKey: "clerivan", status: "working" },
+      { id: "aki", name: "Aki", kind: "worker", artKey: "aki", status: "waiting" },
+      { id: "bryn", name: "Bryn", kind: "worker", artKey: "bryn", status: "blocked" },
+      { id: "mira", name: "Mira", kind: "worker", artKey: "mira", status: "done" },
+      { id: "vera", name: "Vera", kind: "worker", artKey: "vera", status: "idle" }
+    ];
+
+    const managedDefaults = {
+      furniture: {
+        room: { x: 50, y: 50, scale: 0.9 },
+        "steward-desk": { x: 52.98412696815263, y: 49.156641612995585, scale: 0.7 },
+        "worker-left": { x: 34.630832848203596, y: 59.50320457249621, scale: 0.8 },
+        "worker-right": { x: 69.4271748681553, y: 61.99206509249299, scale: 0.8 },
+        "worker-front-left": { x: 45.38504018364378, y: 68.96852777304913, scale: 0.8 },
+        "worker-front-right": { x: 58.433583919963816, y: 70.51754354515407, scale: 0.8 }
+      },
+      roles: {
+        clerivan: { working: { x: 54.60976205282725, y: 38.86743947420915, scale: 0.7 }, standing: { x: 48.809153749805944, y: 43.00028189380333, scale: 0.7 } },
+        aki: { working: { x: 32.508408363677226, y: 52.64578940615588, scale: 0.7 }, standing: { x: 30.454654582220652, y: 56.66805790696099, scale: 0.7 } },
+        bryn: { working: { x: 68.59080926329568, y: 55.43052308388911, scale: 0.65 }, standing: { x: 68.90106277988536, y: 59.52241706746856, scale: 0.7 } },
+        mira: { working: { x: 43.6, y: 61.71901705867537, scale: 0.7 }, standing: { x: 43.8, y: 68.6020566984289, scale: 0.7 } },
+        vera: { working: { x: 57.72366034497739, y: 64.15567157503772, scale: 0.7 }, standing: { x: 56.49707578111429, y: 69.14160223986799, scale: 0.7 } }
+      },
+      bubbles: {
+        clerivan: { x: 49.54748187931514, y: 4.796016494799094, scale: 0.7 },
+        aki: { x: 23.362477360330818, y: 24.472988614340675, scale: 0.7 },
+        bryn: { x: 75.48883656903851, y: 24.786274080733552, scale: 0.7 },
+        mira: { x: 24.33714061468373, y: 85.29435262482237, scale: 0.7 },
+        vera: { x: 76.33582745050956, y: 84.91144376629735, scale: 0.7 }
+      }
+    };
+    const directDefaults = clone(managedDefaults);
+    delete directDefaults.furniture["steward-desk"];
+    delete directDefaults.roles.clerivan;
+    delete directDefaults.bubbles.clerivan;
+    const defaults = { managed: managedDefaults, direct: directDefaults };
+
+    let state = loadState();
+    let selectedObjectId = "room";
+    let dragState = null;
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadState() {
+      const base = { managed: clone(defaults.managed), direct: clone(defaults.direct), statuses: Object.fromEntries(roles.map((role) => [role.id, role.status])) };
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (!stored) return base;
+        return {
+          ...base,
+          ...stored,
+          managed: { ...base.managed, ...stored.managed, furniture: { ...base.managed.furniture, ...stored.managed?.furniture }, roles: { ...base.managed.roles, ...stored.managed?.roles }, bubbles: { ...base.managed.bubbles, ...stored.managed?.bubbles } },
+          direct: { ...base.direct, ...stored.direct, furniture: { ...base.direct.furniture, ...stored.direct?.furniture }, roles: { ...base.direct.roles, ...stored.direct?.roles }, bubbles: { ...base.direct.bubbles, ...stored.direct?.bubbles } },
+          statuses: { ...base.statuses, ...stored.statuses }
+        };
+      } catch (error) {
+        return base;
+      }
+    }
+
+    function persistState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function currentRoom() { return state[officeSelect.value]; }
+    function currentRoleIds() { return officeSelect.value === "managed" ? roles.map((role) => role.id) : roles.filter((role) => role.kind === "worker").map((role) => role.id); }
+    function statusLabel(status) { return { working: "工作中", waiting: "等你", blocked: "卡住", done: "完成", idle: "待命" }[status] || status; }
+
+    function objectPosition(object) {
+      return `--object-x:${object.x}%;--object-y:${object.y}%;--object-scale:${object.scale || 1}`;
+    }
+
+    function roleArt(role) {
+      if (role.kind === "steward") return state.statuses[role.id] === "working" ? assets.clerivanWorking : assets.clerivanStanding;
+      return state.statuses[role.id] === "working" ? assets.workerWorking[role.artKey] : assets.workerStanding[role.artKey];
+    }
+
+    function bubbleMarkup(role, bubble) {
+      const working = state.statuses[role.id] === "working";
+      const className = `calibration-object bubble-object status-${state.statuses[role.id]}${working ? " is-working" : ""}${selectedObjectId === `bubble:${role.id}` ? " is-selected" : ""}`;
+      return `<div class="${className}" data-object-id="bubble:${role.id}" style="${objectPosition(bubble)}"><strong>${role.name}</strong><strong>${statusLabel(state.statuses[role.id])} · ${working ? "工作時間" : "狀態時間"}</strong><span>${working ? "" : "目前回報內容"}</span></div>`;
+    }
+
+    function renderRoleControls() {
+      roleControls.innerHTML = currentRoleIds().map((roleId) => {
+        const role = roles.find((item) => item.id === roleId);
+        return `<div class="role-row"><label for="status-${role.id}">${role.name}</label><select class="field" id="status-${role.id}" data-role-status="${role.id}">${Object.entries({ working: "工作中", waiting: "等你", blocked: "卡住", done: "完成", idle: "待命" }).map(([value, label]) => `<option value="${value}"${state.statuses[role.id] === value ? " selected" : ""}>${label}</option>`).join("")}</select></div>`;
+      }).join("");
+      roleControls.querySelectorAll("[data-role-status]").forEach((select) => select.addEventListener("change", () => {
+        state.statuses[select.dataset.roleStatus] = select.value;
+        persistState();
+        render();
+      }));
+    }
+
+    function renderObjectSelect() {
+      const room = currentRoom();
+      const options = [
+        { id: "room", label: "底圖／牆面" },
+        ...Object.keys(room.furniture).filter((id) => id !== "room").map((id) => ({ id: `desk:${id}`, label: `桌椅／${id}` })),
+        ...currentRoleIds().map((id) => ({ id: `role:${id}`, label: `角色／${roles.find((role) => role.id === id)?.name || id}` })),
+        ...currentRoleIds().map((id) => ({ id: `bubble:${id}`, label: `泡泡／${roles.find((role) => role.id === id)?.name || id}` }))
+      ];
+      objectSelect.innerHTML = options.map((option) => `<option value="${option.id}"${selectedObjectId === option.id ? " selected" : ""}>${option.label}</option>`).join("");
+    }
+
+    function render() {
+      const room = currentRoom();
+      const roomObjects = Object.entries(room.furniture).map(([id, position]) => {
+        if (id === "room") return `<img class="calibration-object room-object${selectedObjectId === "room" ? " is-selected" : ""}" data-object-id="room" src="${assets.room}" alt="等視角書房底圖" style="${objectPosition(position)}">`;
+        const isSteward = id === "steward-desk";
+        return `<div class="calibration-object desk-object" data-object-id="desk:${id}" data-kind="${isSteward ? "steward" : "worker"}" style="${objectPosition(position)}"><img src="${isSteward ? assets.stewardDesk : assets.workerDesk}" alt="${id} 桌椅" draggable="false"><span class="object-tag">${id}</span></div>`;
+      }).join("");
+      const roleObjects = currentRoleIds().map((roleId) => {
+        const role = roles.find((item) => item.id === roleId);
+        const working = state.statuses[role.id] === "working";
+        const position = room.roles[role.id][working ? "working" : "standing"];
+        return `<div class="calibration-object role-object${working ? " is-working" : ""}${selectedObjectId === `role:${role.id}` ? " is-selected" : ""}" data-object-id="role:${role.id}" data-agent-id="${role.id}" data-kind="${role.kind}" style="${objectPosition(position)}"><img src="${roleArt(role)}" alt="${role.name}" draggable="false"><span class="object-tag status-${state.statuses[role.id]}">${role.name} · ${statusLabel(state.statuses[role.id])}</span></div>`;
+      }).join("");
+      const bubbleObjects = currentRoleIds().map((roleId) => {
+        const role = roles.find((item) => item.id === roleId);
+        return bubbleMarkup(role, room.bubbles[role.id]);
+      }).join("");
+      stage.innerHTML = `<div class="stage-grid" aria-hidden="true"></div>${roomObjects}${roleObjects}${bubbleObjects}`;
+      stage.style.transform = `scale(${zoomSelect.value})`;
+      stage.style.transformOrigin = "top left";
+      stage.style.marginBottom = `${840 * (Number(zoomSelect.value) - 1)}px`;
+      stage.style.marginRight = `${1260 * (Number(zoomSelect.value) - 1)}px`;
+      stageTitle.textContent = officeSelect.value === "managed" ? "Managed Office · Clerivan" : "Direct Office · 四位 worker";
+      bindObjects();
+      renderObjectSelect();
+      updateSelectionMeta();
+      updateOutput();
+    }
+
+    function parseObjectId(objectId) {
+      const [type, id] = objectId.split(":");
+      if (type === "room") return { type: "room", id: "room" };
+      return { type, id };
+    }
+
+    function getPosition(objectId) {
+      const parsed = parseObjectId(objectId);
+      const room = currentRoom();
+      if (parsed.type === "room") return room.furniture.room;
+      if (parsed.type === "desk") return room.furniture[parsed.id];
+      if (parsed.type === "role") {
+        const status = state.statuses[parsed.id] === "working" ? "working" : "standing";
+        return room.roles[parsed.id][status];
+      }
+      if (parsed.type === "bubble") return room.bubbles[parsed.id];
+      return null;
+    }
+
+    function updateSelectionMeta() {
+      const position = getPosition(selectedObjectId);
+      if (!position) {
+        selectionMeta.textContent = "點擊底圖、桌椅、角色或泡泡開始校準。";
+        return;
+      }
+      selectionMeta.textContent = `${selectedObjectId} · X ${position.x.toFixed(2)}% · Y ${position.y.toFixed(2)}% · ${Math.round((position.scale || 1) * 100)}%`;
+    }
+
+    function updateOutput() {
+      const room = currentRoom();
+      const output = {
+        room: officeSelect.value,
+        scale: 3,
+        furniture: room.furniture,
+        roles: room.roles,
+        bubbles: room.bubbles
+      };
+      coordinateOutput.value = JSON.stringify(output, null, 2);
+    }
+
+    function bindObjects() {
+      stage.querySelectorAll("[data-object-id]").forEach((object) => {
+        object.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          selectedObjectId = object.dataset.objectId;
+          const position = getPosition(selectedObjectId);
+          if (!position) return;
+          dragState = { pointerId: event.pointerId, object, position, startX: event.clientX, startY: event.clientY };
+          object.setPointerCapture?.(event.pointerId);
+          renderSelectionOnly();
+        });
+        object.addEventListener("wheel", (event) => {
+          event.preventDefault();
+          selectedObjectId = object.dataset.objectId;
+          const position = getPosition(selectedObjectId);
+          if (!position) return;
+          position.scale = clamp((position.scale || 1) + (event.deltaY < 0 ? 0.05 : -0.05), 0.35, 2.5);
+          persistState();
+          render();
+        }, { passive: false });
+      });
+    }
+
+    function renderSelectionOnly() {
+      stage.querySelectorAll("[data-object-id]").forEach((object) => object.classList.toggle("is-selected", object.dataset.objectId === selectedObjectId));
+      updateSelectionMeta();
+    }
+
+    function clamp(value, min, max) { return Math.min(Math.max(value, min), max); }
+
+    function moveSelected(event) {
+      if (!dragState || event.pointerId !== dragState.pointerId) return;
+      const stageRect = stage.getBoundingClientRect();
+      const position = dragState.position;
+      position.x = clamp(position.x + (event.clientX - dragState.startX) / stageRect.width * 100, -10, 110);
+      position.y = clamp(position.y + (event.clientY - dragState.startY) / stageRect.height * 100, -10, 110);
+      dragState.startX = event.clientX;
+      dragState.startY = event.clientY;
+      dragState.object.style.cssText = objectPosition(position);
+      updateSelectionMeta();
+      updateOutput();
+    }
+
+    function releaseDrag() {
+      if (!dragState) return;
+      dragState = null;
+      persistState();
+      calibrationStatus.textContent = "定位已保存到本機瀏覽器。";
+    }
+
+    function resetSelected() {
+      const object = defaults[officeSelect.value];
+      const parsed = parseObjectId(selectedObjectId);
+      const room = currentRoom();
+      const defaultPosition = parsed.type === "room" ? object.furniture.room : parsed.type === "desk" ? object.furniture[parsed.id] : parsed.type === "role" ? object.roles[parsed.id][state.statuses[parsed.id] === "working" ? "working" : "standing"] : object.bubbles[parsed.id];
+      if (!defaultPosition) return;
+      const target = getPosition(selectedObjectId);
+      Object.assign(target, defaultPosition);
+      persistState();
+      render();
+      calibrationStatus.textContent = `${selectedObjectId} 已重設。`;
+    }
+
+    function resetAll() {
+      state[officeSelect.value] = clone(defaults[officeSelect.value]);
+      persistState();
+      render();
+      calibrationStatus.textContent = `${officeSelect.value} 房間已重設。`;
+    }
+
+    function copyManagedToDirect() {
+      const workerIds = roles.filter((role) => role.kind === "worker").map((role) => role.id);
+      state.direct = {
+        furniture: Object.fromEntries(Object.entries(state.managed.furniture)
+          .filter(([id]) => id !== "steward-desk")
+          .map(([id, position]) => [id, clone(position)])),
+        roles: Object.fromEntries(workerIds.map((id) => [id, clone(state.managed.roles[id])])),
+        bubbles: Object.fromEntries(workerIds.map((id) => [id, clone(state.managed.bubbles[id])]))
+      };
+      officeSelect.value = "direct";
+      selectedObjectId = "room";
+      persistState();
+      renderRoleControls();
+      render();
+      calibrationStatus.textContent = "已複製 Managed 的員工配置到 Direct，並略過 Clerivan。";
+    }
+
+    function overlap(a, b) {
+      return Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+    }
+
+    function readRects() {
+      const roomRect = stage.getBoundingClientRect();
+      const rolesInRoom = [...stage.querySelectorAll(".role-object")].map((object) => ({ id: object.dataset.agentId, rect: object.getBoundingClientRect() }));
+      const bubblesInRoom = [...stage.querySelectorAll(".bubble-object")].map((object) => ({ id: object.dataset.objectId.slice(7), rect: object.getBoundingClientRect() }));
+      const desksInRoom = [...stage.querySelectorAll(".desk-object")].map((object) => ({ id: object.dataset.objectId.slice(5), rect: object.getBoundingClientRect() }));
+      return { roomRect, roles: rolesInRoom, bubbles: bubblesInRoom, desks: desksInRoom };
+    }
+
+    function checkCurrentCombination() {
+      const data = readRects();
+      const issues = [];
+      for (let i = 0; i < data.roles.length; i += 1) {
+        for (let j = i + 1; j < data.roles.length; j += 1) {
+          if (overlap(data.roles[i].rect, data.roles[j].rect)) issues.push(`${data.roles[i].id}/${data.roles[j].id} 角色重疊`);
+        }
+      }
+      for (let i = 0; i < data.bubbles.length; i += 1) {
+        for (let j = i + 1; j < data.bubbles.length; j += 1) {
+          if (overlap(data.bubbles[i].rect, data.bubbles[j].rect)) issues.push(`${data.bubbles[i].id}/${data.bubbles[j].id} 泡泡重疊`);
+        }
+      }
+      data.bubbles.forEach((bubble) => data.roles.forEach((role) => {
+        if (bubble.id !== role.id && overlap(bubble.rect, role.rect)) issues.push(`${bubble.id} 泡泡遮住 ${role.id}`);
+      }));
+      data.roles.forEach((role) => {
+        if (role.rect.left < data.roomRect.left || role.rect.right > data.roomRect.right || role.rect.top < data.roomRect.top || role.rect.bottom > data.roomRect.bottom) issues.push(`${role.id} 超出校準畫布`);
+      });
+      return [...new Set(issues)];
+    }
+
+    function checkAllCombinations() {
+      const workerIds = currentRoleIds().filter((id) => id !== "clerivan");
+      const original = { ...state.statuses };
+      const failures = [];
+      for (let mask = 0; mask < 2 ** workerIds.length; mask += 1) {
+        workerIds.forEach((id, index) => { state.statuses[id] = (mask & (1 << index)) ? "working" : "waiting"; });
+        render();
+        const issues = checkCurrentCombination();
+        if (issues.length) failures.push({ combination: workerIds.map((id) => `${id}:${state.statuses[id] === "working" ? "W" : "S"}`).join(" "), issues });
+      }
+      state.statuses = original;
+      render();
+      if (!failures.length) {
+        checkResult.textContent = `通過：${2 ** workerIds.length} 種 worker 工作／站立組合都沒有角色或泡泡重疊。`;
+        checkResult.classList.remove("collision-warning");
+      } else {
+        checkResult.innerHTML = `發現 ${failures.length} 組需要調整：<br>${failures.map((failure) => `${failure.combination} · ${failure.issues.join("、")}`).join("<br>")}`;
+        checkResult.classList.add("collision-warning");
+      }
+    }
+
+    officeSelect.addEventListener("change", () => { selectedObjectId = "room"; renderRoleControls(); render(); });
+    objectSelect.addEventListener("change", () => { selectedObjectId = objectSelect.value; renderSelectionOnly(); });
+    zoomSelect.addEventListener("change", render);
+    document.querySelector("#scaleDown").addEventListener("click", () => { const position = getPosition(selectedObjectId); if (!position) return; position.scale = clamp((position.scale || 1) - 0.05, 0.35, 2.5); persistState(); render(); });
+    document.querySelector("#scaleUp").addEventListener("click", () => { const position = getPosition(selectedObjectId); if (!position) return; position.scale = clamp((position.scale || 1) + 0.05, 0.35, 2.5); persistState(); render(); });
+    document.querySelector("#resetSelected").addEventListener("click", resetSelected);
+    document.querySelector("#resetAll").addEventListener("click", resetAll);
+    document.querySelector("#copyManagedToDirect").addEventListener("click", copyManagedToDirect);
+    document.querySelector("#checkAll").addEventListener("click", checkAllCombinations);
+    document.querySelector("#copyOutput").addEventListener("click", async () => {
+      await navigator.clipboard?.writeText(coordinateOutput.value);
+      calibrationStatus.textContent = "目前定位資料已複製。";
+    });
+    document.addEventListener("pointermove", moveSelected, true);
+    document.addEventListener("pointerup", releaseDrag, true);
+    document.addEventListener("pointercancel", releaseDrag, true);
+
+    renderRoleControls();
+    render();
+  </script>
+</body>
+</html>

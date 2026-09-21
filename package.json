@@ -1,0 +1,14 @@
+{
+  "name": "agentdesk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AgentDesk desktop companion for local AI sessions",
+  "main": "desktop/main.js",
+  "scripts": {
+    "desktop": "electron .",
+    "desktop:dev": "electron . --enable-logging"
+  },
+  "devDependencies": {
+    "electron": "latest"
+  }
+}

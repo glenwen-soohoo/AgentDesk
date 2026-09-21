@@ -1,0 +1,4 @@
+{"provider":"claude-code","identity":{"agentId":"aki","reportTo":"clerivan"},"event":{"type":"assistant","session_id":"claude-live-001","created_at":1789436520,"message":{"content":[{"type":"text","text":"整理回報簿"}]}}}
+{"provider":"codex","identity":{"agentId":"bryn","reportTo":"clerivan"},"event":{"type":"agent.session.requires_action","session_id":"codex-live-014","created_at":1789436700,"message":"需要 Glen 確認權限"}}
+{"provider":"claude-code","identity":{"agentId":"nora","reportTo":null},"event":{"type":"result","session_id":"claude-live-022","created_at":1789437000,"result":"素材 brief 已完成","is_error":false}}
+{"provider":"codex","identity":{"agentId":"bryn","reportTo":"clerivan"},"event":{"method":"thread/status/changed","params":{"threadId":"codex-thread-014","status":{"type":"active","activeFlags":["waitingOnApproval"]}}}}

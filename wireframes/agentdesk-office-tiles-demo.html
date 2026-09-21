@@ -1,0 +1,2266 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentDesk Isometric Office Tile Wireframe</title>
+  <style>
+    :root {
+      --paper: #f7efdf;
+      --paper-deep: #e9ddc7;
+      --ink: #2e302e;
+      --muted: #706d63;
+      --line: #cdbb9d;
+      --navy: #283750;
+      --wood: #8b6544;
+      --wood-dark: #604734;
+      --sage: #60735b;
+      --brass: #a97d38;
+      --waiting: #b3813f;
+      --asking: #4f6d99;
+      --blocked: #b65349;
+      --done: #4e795f;
+      --tile-width: 420px;
+      --tile-height: 280px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 1160px;
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: #e8dece;
+      font-family: "Noto Sans TC", sans-serif;
+    }
+
+    button { font: inherit; }
+
+    .app {
+      width: 1240px;
+      padding: 28px 20px 22px;
+    }
+
+    .dev-toolbar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 18px;
+      min-height: 54px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      background: var(--paper);
+    }
+
+    .toolbar-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .toolbar-title::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--brass);
+      border-radius: 50%;
+      background: var(--paper);
+    }
+
+    .desktop-mode .dev-toolbar { -webkit-app-region: drag; }
+    .desktop-mode .dev-toolbar button,
+    .desktop-mode .dev-toolbar select,
+    .desktop-mode .dev-toolbar label,
+    .desktop-mode .toolbar-group,
+    .desktop-mode .toolbar-actions { -webkit-app-region: no-drag; }
+
+    .desktop-mode {
+      min-width: 0;
+      min-height: 0;
+      display: block;
+      background: transparent;
+    }
+
+    .desktop-mode .app {
+      width: 1200px;
+      padding: 0;
+    }
+
+    .desktop-mode .dev-toolbar,
+    .desktop-mode .scene-title,
+    .desktop-mode .scene-summary,
+    .desktop-mode .tile-grid-note {
+      display: none;
+    }
+
+    .desktop-mode .scene {
+      width: 1200px;
+      height: 720px;
+      overflow: visible;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      -webkit-app-region: no-drag;
+    }
+
+    .desktop-mode .scene::before,
+    .desktop-mode .scene::after {
+      display: none;
+    }
+
+    .desktop-mode .office-layer,
+    .desktop-mode .office-tile {
+      -webkit-app-region: no-drag;
+    }
+
+    .desktop-mode .tile-drag-area {
+      cursor: grab;
+    }
+
+    .desktop-mode .tile-drag-area:active { cursor: grabbing; }
+
+    .desktop-mode .office-agent-layer,
+    .desktop-mode .agent-figure,
+    .desktop-mode .office-bubble-layer,
+    .desktop-mode .agent-bubble,
+    .desktop-mode .agent-context-menu {
+      -webkit-app-region: no-drag;
+    }
+
+    .desktop-mode .office-tile {
+      left: calc(var(--tile-left) + var(--office-offset-x, 0px));
+      top: calc(var(--tile-top) + var(--office-offset-y, 0px));
+    }
+
+    .desktop-controls {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+    }
+
+    .desktop-mode .desktop-controls { display: inline-flex; }
+
+    .desktop-controls button {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--navy);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .desktop-controls button:hover,
+    .desktop-controls button:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 1px;
+      background: var(--paper-deep);
+    }
+
+    .toolbar-group,
+    .toolbar-actions,
+    .agent-picker,
+    .state-picker {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-label {
+      margin-right: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .toolbar-button,
+    .toolbar-select,
+    .agent-picker button,
+    .state-picker button {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .toolbar-select {
+      min-width: 132px;
+      color: var(--ink);
+    }
+
+    .toolbar-button:hover,
+    .toolbar-select:hover,
+    .agent-picker button:hover,
+    .state-picker button:hover,
+    .toolbar-button:focus-visible,
+    .toolbar-select:focus-visible,
+    .agent-picker button:focus-visible,
+    .state-picker button:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 2px;
+    }
+
+    .toolbar-button.primary,
+    .agent-picker button.is-active,
+    .state-picker button.is-active {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: var(--paper);
+    }
+
+    .hidden-agent-control {
+      display: none;
+    }
+
+    /* 浮動小圖示鈕：只在有關閉角色時出現，桌面模式（工具列被隱藏）也點得到。 */
+    .hidden-agent-control.is-visible {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 2000;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 9999px;
+      color: var(--ink);
+      box-shadow: 0 4px 12px rgba(54, 41, 26, 0.24);
+    }
+
+    .hidden-agent-icon {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .hidden-agent-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 9999px;
+      background: var(--asking);
+      color: #fff;
+      font-size: 11px;
+      line-height: 16px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .desktop-mode .hidden-agent-control { -webkit-app-region: no-drag; }
+
+    .toolbar-state {
+      min-width: 126px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+    }
+
+    .scene {
+      position: relative;
+      width: 1200px;
+      height: 720px;
+      overflow: visible;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      box-shadow: 0 24px 58px rgba(54, 41, 26, 0.2);
+      isolation: isolate;
+    }
+
+    .scene::before,
+    .scene::after {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      width: 150px;
+      height: 1px;
+      background: rgba(169, 125, 56, 0.26);
+      transform: rotate(-26.5deg);
+    }
+
+    .scene::before { left: 68px; bottom: 116px; }
+    .scene::after { right: 82px; top: 144px; }
+
+    .scene-title,
+    .scene-summary {
+      position: absolute;
+      top: 16px;
+      z-index: 40;
+      border: 1px solid rgba(205, 187, 157, 0.96);
+      border-radius: 4px;
+      background: rgba(247, 239, 223, 0.96);
+    }
+
+    .scene-title {
+      left: 20px;
+      padding: 8px 11px;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .scene-summary {
+      right: 20px;
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+    }
+
+    .scene-summary span {
+      padding: 3px 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .tile-grid-note {
+      position: absolute;
+      left: 20px;
+      bottom: 18px;
+      z-index: 40;
+      max-width: 308px;
+      padding: 7px 9px;
+      border-left: 3px solid var(--brass);
+      background: rgba(247, 239, 223, 0.9);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .office-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+    }
+
+    .office-tile {
+      position: absolute;
+      left: var(--tile-left);
+      top: var(--tile-top);
+      width: var(--tile-width);
+      height: var(--tile-height);
+      z-index: var(--tile-z);
+    }
+
+    .tile-floor,
+    .tile-floor-inner {
+      display: none;
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+
+    .tile-floor {
+      background: var(--navy);
+      filter: drop-shadow(0 14px 14px rgba(54, 41, 26, 0.16));
+    }
+
+    .tile-floor-inner {
+      inset: 4px;
+      background: #e9dfcd;
+    }
+
+    .tile-drag-area {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      background: transparent;
+      pointer-events: auto;
+    }
+
+    .tile-room,
+    .office-agent-layer {
+      position: absolute;
+      inset: 0;
+    }
+
+    .tile-room {
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .office-art {
+      position: absolute;
+      left: var(--room-x, 50%);
+      top: var(--room-y, 50%);
+      z-index: 1;
+      display: block;
+      width: var(--room-width, 100%);
+      height: var(--room-height, 100%);
+      object-fit: fill;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .office-furniture-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .furniture-piece {
+      position: absolute;
+      left: var(--furniture-x);
+      top: var(--furniture-y);
+      width: var(--furniture-width);
+      height: var(--furniture-height);
+      z-index: var(--furniture-z, 1);
+      transform: translate(-50%, -50%) var(--furniture-mirror);
+      transform-origin: center center;
+    }
+
+    .furniture-sprite {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      user-select: none;
+    }
+
+    .office-seats { display: none; }
+
+    .office-agent-layer {
+      inset: 0;
+      z-index: 18;
+      pointer-events: none;
+    }
+
+    .office-agent-front-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 22;
+      pointer-events: none;
+    }
+
+    .office-agent-front-layer .agent-figure {
+      z-index: 24;
+    }
+
+    /* Bubbles live in scene-level layers (siblings of every tile, not inside one), so a
+       lower-z office tile's report bubble is never covered or click-blocked by a
+       higher-z neighbouring tile. z-index sits above every tile's --tile-z but below the
+       body-level context menu (z-index 100 on .office-layer's parent stacking context). */
+    .office-bubble-layer {
+      position: absolute;
+      left: var(--tile-left);
+      top: var(--tile-top);
+      width: var(--tile-width);
+      height: var(--tile-height);
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .desktop-mode .office-bubble-layer {
+      left: calc(var(--tile-left) + var(--office-offset-x, 0px));
+      top: calc(var(--tile-top) + var(--office-offset-y, 0px));
+    }
+
+    .office-sign {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      z-index: 30;
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      padding: 6px 8px;
+      border: 1px solid rgba(205, 187, 157, 0.96);
+      border-radius: 4px;
+      background: rgba(247, 239, 223, 0.96);
+      box-shadow: 0 8px 14px rgba(54, 41, 26, 0.1);
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .office-sign strong { color: var(--navy); font-size: 12px; }
+    .office-sign small { color: var(--muted); font-size: 10px; }
+
+    .tile-rug {
+      position: absolute;
+      left: 22%;
+      top: 27%;
+      width: 56%;
+      height: 45%;
+      border: 2px solid rgba(40, 55, 80, 0.32);
+      background: rgba(96, 115, 91, 0.16);
+      transform: rotate(-14deg) skewX(10deg);
+    }
+
+    .tile-rug::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border: 1px solid rgba(169, 125, 56, 0.52);
+    }
+
+    .tile-desk {
+      position: absolute;
+      width: 84px;
+      height: 46px;
+      border: 2px solid var(--wood-dark);
+      background: var(--wood);
+      box-shadow: 7px 7px 0 rgba(96, 71, 52, 0.32);
+      transform: skewY(-18deg);
+    }
+
+    .tile-desk::before,
+    .tile-desk::after {
+      content: "";
+      position: absolute;
+      bottom: -16px;
+      width: 2px;
+      height: 16px;
+      background: var(--wood-dark);
+    }
+
+    .tile-desk::before { left: 13px; }
+    .tile-desk::after { right: 13px; }
+
+    .desk-front { left: 10%; top: 64%; }
+    .desk-back { right: 7%; top: 16%; transform: skewY(18deg); }
+
+    .tile-bookcase {
+      position: absolute;
+      right: 4%;
+      top: 36%;
+      width: 31px;
+      height: 76px;
+      border: 2px solid var(--wood-dark);
+      background: var(--wood);
+      transform: skewY(18deg);
+    }
+
+    .tile-bookcase::before {
+      content: "";
+      position: absolute;
+      inset: 10px 5px;
+      background: #536755;
+      box-shadow: inset 0 12px 0 rgba(247, 239, 223, 0.24), inset 0 25px 0 rgba(96, 71, 52, 0.22), inset 0 38px 0 rgba(247, 239, 223, 0.24);
+      border-top: 1px solid rgba(247, 239, 223, 0.66);
+      border-bottom: 1px solid rgba(247, 239, 223, 0.66);
+    }
+
+    .tile-lamp {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border: 2px solid var(--brass);
+      border-radius: 50%;
+      background: var(--sage);
+      box-shadow: 0 0 0 5px rgba(169, 125, 56, 0.12);
+    }
+
+    .tile-lamp::after {
+      content: "";
+      position: absolute;
+      left: 15px;
+      top: 31px;
+      width: 2px;
+      height: 20px;
+      background: var(--brass);
+    }
+
+    .lamp-front { left: 30%; top: 58%; }
+    .lamp-back { right: 25%; top: 20%; transform: scale(0.78); }
+
+    .tile-plant {
+      position: absolute;
+      left: 7%;
+      top: 31%;
+      width: 25px;
+      height: 25px;
+      border: 2px solid var(--wood-dark);
+      border-radius: 50% 50% 46% 46%;
+      background: var(--sage);
+    }
+
+    .tile-plant::before,
+    .tile-plant::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 12px;
+      border: 2px solid var(--sage);
+      border-radius: 70% 0 70% 0;
+      background: #78906d;
+    }
+
+    .tile-plant::before { left: -13px; top: -13px; transform: rotate(-32deg); }
+    .tile-plant::after { right: -14px; top: -9px; transform: rotate(24deg); }
+
+    .seat-mark {
+      position: absolute;
+      left: var(--seat-x);
+      top: var(--seat-y);
+      width: 54px;
+      height: 30px;
+      border: 1px solid rgba(40, 55, 80, 0.28);
+      border-radius: 50%;
+      background: rgba(247, 239, 223, 0.28);
+      transform: translate(-50%, -50%) rotate(-12deg);
+    }
+
+    .seat-mark::after {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: -8px;
+      height: 8px;
+      border-right: 1px solid rgba(40, 55, 80, 0.25);
+      border-left: 1px solid rgba(40, 55, 80, 0.25);
+    }
+
+    .agent-figure {
+      position: absolute;
+      left: var(--agent-x);
+      top: var(--agent-y);
+      width: 104px;
+      height: 146px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      pointer-events: auto;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    .agent-figure:hover,
+    .agent-figure:focus-visible,
+    .agent-figure.is-selected { z-index: 30; }
+
+    .agent-figure.has-bubble { z-index: 24; }
+    .agent-figure.has-bubble.is-selected { z-index: 34; }
+
+    .agent-figure:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+
+    .figure {
+      position: absolute;
+      left: 22px;
+      bottom: 22px;
+      width: 60px;
+      height: 102px;
+    }
+
+    .figure-image {
+      left: 50%;
+      top: 50%;
+      bottom: auto;
+      width: var(--figure-width, 74px);
+      height: var(--figure-height, 108px);
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
+    }
+
+    .agent-sprite {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center bottom;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .figure-body {
+      position: absolute;
+      left: 9px;
+      bottom: 0;
+      z-index: 1;
+      width: 43px;
+      height: 47px;
+      border: 2px solid rgba(40, 55, 80, 0.82);
+      border-radius: 20px 20px 8px 8px;
+      background: var(--agent-coat);
+      box-shadow: inset 0 11px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .figure-body::before {
+      content: "";
+      position: absolute;
+      left: 17px;
+      top: 5px;
+      width: 7px;
+      height: 28px;
+      border-left: 1px solid rgba(255, 249, 238, 0.78);
+      border-right: 1px solid rgba(255, 249, 238, 0.78);
+    }
+
+    .figure-head {
+      position: absolute;
+      left: 13px;
+      top: 19px;
+      z-index: 2;
+      width: 35px;
+      height: 35px;
+      border: 2px solid rgba(87, 58, 41, 0.78);
+      border-radius: 46% 46% 44% 44%;
+      background: #efc1a4;
+    }
+
+    .figure-head::before,
+    .figure-head::after {
+      content: "";
+      position: absolute;
+      top: 16px;
+      width: 4px;
+      height: 5px;
+      border-radius: 50%;
+      background: #503c36;
+    }
+
+    .figure-head::before { left: 8px; }
+    .figure-head::after { right: 8px; }
+
+    .figure-hair {
+      position: absolute;
+      left: 9px;
+      top: 8px;
+      z-index: 1;
+      width: 43px;
+      height: 31px;
+      border: 2px solid rgba(87, 58, 41, 0.74);
+      border-radius: 52% 58% 35% 38%;
+      background: var(--agent-hair);
+      transform: rotate(-4deg);
+    }
+
+    .figure-hair::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 20px;
+      width: 13px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--agent-hair);
+      transform: rotate(15deg);
+    }
+
+    .agent-steward .figure-hair { height: 28px; }
+
+    .agent-steward .figure-hair::after {
+      left: 10px;
+      top: 19px;
+      width: 18px;
+      height: 60px;
+      border: 2px solid rgba(87, 58, 41, 0.56);
+      border-top: 0;
+      border-radius: 0 0 50% 50%;
+      transform: rotate(7deg);
+    }
+
+    .figure-glasses {
+      position: absolute;
+      left: 15px;
+      top: 27px;
+      z-index: 5;
+      width: 31px;
+      height: 10px;
+    }
+
+    .figure-glasses::before,
+    .figure-glasses::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 10px;
+      height: 8px;
+      border: 1px solid rgba(40, 55, 80, 0.85);
+      border-radius: 50%;
+    }
+
+    .figure-glasses::before { left: 0; }
+    .figure-glasses::after { right: 0; }
+
+    .figure-quill {
+      position: absolute;
+      right: 1px;
+      bottom: 12px;
+      z-index: 4;
+      width: 18px;
+      height: 32px;
+      border-left: 2px solid var(--brass);
+      transform: rotate(29deg);
+      transform-origin: bottom;
+    }
+
+    .figure-quill::before,
+    .figure-quill::after {
+      content: "";
+      position: absolute;
+      left: -6px;
+      width: 10px;
+      height: 9px;
+      border: 1px solid var(--brass);
+      border-left: 0;
+      border-radius: 0 70% 70% 0;
+    }
+
+    .figure-quill::before { top: 1px; transform: rotate(-18deg); }
+    .figure-quill::after { top: 10px; transform: rotate(18deg); }
+
+    .state-pip {
+      display: inline-block;
+      flex: 0 0 7px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--state-color);
+    }
+
+    .agent-bubble {
+      position: absolute;
+      left: var(--bubble-x, 50%);
+      top: var(--bubble-y, 50%);
+      z-index: 1;
+      width: 188px;
+      max-width: 188px;
+      min-height: 68px;
+      max-height: 96px;
+      padding: 8px 12px;
+      border: 1px solid rgba(205, 187, 157, 0.95);
+      border-radius: 4px;
+      background: rgba(247, 239, 223, 0.97);
+      box-shadow: 0 10px 18px rgba(54, 41, 26, 0.12);
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(var(--bubble-scale, 1));
+      transform-origin: center center;
+    }
+
+    .agent-bubble.is-working {
+      width: 94px;
+      max-width: 94px;
+      min-height: 44px;
+      max-height: 60px;
+      padding: 6px 8px;
+    }
+
+    .agent-bubble:hover,
+    .agent-bubble:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 2px;
+    }
+
+    .agent-bubble::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -6px;
+      width: 10px;
+      height: 10px;
+      border-right: 1px solid rgba(205, 187, 157, 0.95);
+      border-bottom: 1px solid rgba(205, 187, 157, 0.95);
+      background: rgba(247, 239, 223, 0.97);
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .agent-bubble[data-placement="right"]::after,
+    .agent-bubble[data-placement="right-lower"]::after,
+    .agent-bubble[data-placement="working-right"]::after {
+      left: -6px;
+      top: 18px;
+      bottom: auto;
+      transform: rotate(135deg);
+    }
+
+    .agent-bubble[data-placement="left"]::after,
+    .agent-bubble[data-placement="left-lower"]::after,
+    .agent-bubble[data-placement="working-left"]::after {
+      left: auto;
+      right: -6px;
+      top: 18px;
+      bottom: auto;
+      transform: rotate(-45deg);
+    }
+
+    .agent-bubble[data-placement="top-left"]::after {
+      left: calc(100% - 20px);
+      top: auto;
+      right: auto;
+      bottom: -6px;
+      transform: rotate(45deg);
+    }
+
+    .agent-bubble[data-placement="working-above-left"]::after {
+      left: calc(100% - 20px);
+      top: auto;
+      right: auto;
+      bottom: -6px;
+      transform: rotate(45deg);
+    }
+
+    .agent-bubble[data-placement="working-above-left-lower"]::after {
+      left: calc(100% - 20px);
+      top: auto;
+      right: auto;
+      bottom: -6px;
+      transform: rotate(45deg);
+    }
+
+    .agent-bubble[data-placement="top-right"]::after {
+      left: 20px;
+      top: auto;
+      right: auto;
+      bottom: -6px;
+      transform: rotate(45deg);
+    }
+
+    .agent-bubble[data-placement="working-above-right"]::after {
+      left: 20px;
+      top: auto;
+      right: auto;
+      bottom: -6px;
+      transform: rotate(45deg);
+    }
+
+    .agent-bubble[data-placement="working-above-right-lower"]::after {
+      left: 20px;
+      top: auto;
+      right: auto;
+      bottom: -6px;
+      transform: rotate(45deg);
+    }
+
+    .agent-bubble[data-placement="bottom"]::after {
+      left: 50%;
+      top: -6px;
+      bottom: auto;
+      transform: translateX(-50%) rotate(225deg);
+    }
+
+    .agent-bubble[data-placement="working-below"]::after {
+      left: 50%;
+      top: -6px;
+      bottom: auto;
+      transform: translateX(-50%) rotate(225deg);
+    }
+
+    .agent-bubble[data-placement="bottom-left"]::after {
+      left: calc(100% - 20px);
+      top: -6px;
+      bottom: auto;
+      transform: rotate(225deg);
+    }
+
+    .agent-bubble[data-placement="working-below-left"]::after {
+      left: calc(100% - 20px);
+      top: -6px;
+      bottom: auto;
+      transform: rotate(225deg);
+    }
+
+    .agent-bubble[data-placement="bottom-right"]::after {
+      left: 20px;
+      top: -6px;
+      bottom: auto;
+      transform: rotate(225deg);
+    }
+
+    .agent-bubble[data-placement="working-below-right"]::after {
+      left: 20px;
+      top: -6px;
+      bottom: auto;
+      transform: rotate(225deg);
+    }
+
+    .agent-bubble > strong,
+    .agent-bubble > span { display: block; }
+
+    .agent-bubble .bubble-agent-name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 2px;
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agent-bubble .bubble-status {
+      margin-bottom: 2px;
+      color: var(--navy);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .agent-bubble > span:last-child {
+      display: -webkit-box;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .status-working { --state-color: var(--sage); }
+    .status-asking { --state-color: var(--asking); }
+    .status-waiting { --state-color: var(--waiting); }
+    .status-blocked { --state-color: var(--blocked); }
+    .status-done { --state-color: var(--done); }
+    .status-idle { --state-color: var(--muted); }
+
+    .status-asking .agent-bubble,
+    .agent-bubble.status-asking { border-color: rgba(79, 109, 153, 0.85); }
+    .status-blocked .agent-bubble,
+    .agent-bubble.status-blocked { border-color: rgba(182, 83, 73, 0.8); }
+    .status-done .agent-bubble,
+    .agent-bubble.status-done { border-color: rgba(78, 121, 95, 0.72); }
+    .status-working .figure-quill { animation: writing 1.2s ease-in-out infinite alternate; }
+    .status-working .agent-sprite { animation: figure-bob 1.2s ease-in-out infinite alternate; }
+    .status-waiting .figure-head { transform: translateY(2px); }
+    .status-waiting .agent-sprite { transform: translateY(2px); }
+    .status-blocked .figure-body { filter: saturate(0.68); }
+    .status-blocked .figure-image { filter: saturate(0.68); }
+    .status-done .figure:not(.figure-image) { filter: saturate(0.72); }
+    .status-done .figure-image { filter: saturate(0.72); }
+    .status-idle .figure:not(.figure-image) { filter: saturate(0.54); }
+    .status-idle .figure-image { filter: saturate(0.54) opacity(0.82); }
+    .status-idle .figure-quill { opacity: 0.45; }
+
+    .agent-context-menu {
+      position: fixed;
+      z-index: 100;
+      display: grid;
+      width: 220px;
+      max-width: calc(100vw - 16px);
+      max-height: calc(100vh - 16px);
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--paper);
+      box-shadow: 0 14px 28px rgba(54, 41, 26, 0.22);
+      overflow-y: auto;
+    }
+
+    .agent-context-menu[hidden] { display: none; }
+
+    .agent-context-menu button {
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 11px;
+      text-align: left;
+    }
+
+    .agent-context-menu button:hover,
+    .agent-context-menu button:focus-visible {
+      outline: 0;
+      background: var(--paper-deep);
+    }
+
+    .agent-context-menu button.is-danger { color: var(--blocked); }
+
+    .agent-context-menu .menu-separator {
+      height: 1px;
+      margin: 4px 3px;
+      background: var(--line);
+    }
+
+    @keyframes writing {
+      from { transform: rotate(25deg); }
+      to { transform: rotate(38deg); }
+    }
+
+    @keyframes figure-bob {
+      from { transform: translateY(0); }
+      to { transform: translateY(-2px); }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .status-working .figure-quill { animation: none; }
+      .status-working .agent-sprite { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <button class="toolbar-button hidden-agent-control" id="restoreHiddenAgents" type="button" aria-label="顯示已關閉角色">
+    <svg class="hidden-agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span class="hidden-agent-count" id="restoreHiddenCount" aria-hidden="true"></span>
+  </button>
+  <main class="app" aria-label="AgentDesk isometric office tile wireframe">
+    <section class="dev-toolbar" aria-label="Wireframe test controls">
+      <div class="toolbar-title">Isometric Tile wireframe</div>
+      <div class="toolbar-group">
+        <span class="toolbar-label">Selected agent</span>
+        <div class="agent-picker" id="agentPicker"></div>
+        <span class="toolbar-label">State</span>
+        <div class="state-picker" id="statePicker"></div>
+      </div>
+      <div class="toolbar-actions">
+        <label class="toolbar-label" for="scenarioPicker">Scenario</label>
+        <select class="toolbar-select" id="scenarioPicker" aria-label="Office scenario">
+          <option value="single-managed">單一 Managed</option>
+          <option value="dual-managed">雙 Clerivan</option>
+          <option value="managed-direct">Managed + Direct</option>
+          <option value="direct-overflow">Direct 滿位增生</option>
+          <option value="live">Live Sessions</option>
+        </select>
+        <span class="toolbar-state" id="toolbarState" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="scene" id="scene" data-office-count="1" aria-label="AgentDesk 可拼接菱形辦公室">
+      <div class="scene-title">AgentDesk / Isometric Office Grid</div>
+      <div class="scene-summary" aria-label="目前場景摘要">
+        <span id="officeSummary">1 office</span>
+        <span id="agentSummary">4 characters</span>
+      </div>
+      <div class="office-layer" id="officeLayer"></div>
+      <p class="tile-grid-note">一個 office = 一個固定菱形 tile。下一間沿著牆高補正後的等視角拼接軸加入。</p>
+      <div id="liveRegion" class="sr-only" aria-live="polite"></div>
+    </section>
+    <div id="agentContextMenu" class="agent-context-menu" role="menu" hidden></div>
+  </main>
+
+  <script src="./agentdesk-session-adapter.js"></script>
+  <script src="./agentdesk-office-router.js"></script>
+  <script src="./agentdesk-source-adapters.js"></script>
+  <script>
+    const tileWidth = 420;
+    const tileHeight = 280;
+    // The raised wall changes the visible join points, so the room step is not
+    // the raw half-width / half-height of the transparent canvas.
+    const defaultTileStep = { x: 180, y: 164 };
+    let tileStep = defaultTileStep;
+    const defaultFloorProjection = {
+      back: { x: 50, y: 30 },
+      wallOffsetY: 8,
+      axisRight: { x: 50, y: 30 },
+      axisLeft: { x: -50, y: 30 }
+    };
+    const defaultWorkerSeats = [
+      { id: "worker-left", furnitureId: "worker-left", kind: "worker", floorX: 0.24, floorY: 0.64, bubble: { slot: "upper-left" } },
+      { id: "worker-right", furnitureId: "worker-right", kind: "worker", floorX: 0.64, floorY: 0.24, bubble: { slot: "upper-right" } },
+      { id: "worker-front-left", furnitureId: "worker-front-left", kind: "worker", floorX: 0.54, floorY: 0.74, bubble: { slot: "lower-left" } },
+      { id: "worker-front-right", furnitureId: "worker-front-right", kind: "worker", floorX: 0.74, floorY: 0.54, bubble: { slot: "lower-right" } }
+    ];
+    const defaultManagedSeats = [
+      { id: "steward-desk", furnitureId: "steward-desk", kind: "steward", floorX: 0.26, floorY: 0.26, bubble: { slot: "top-center" } },
+      ...defaultWorkerSeats
+    ];
+    const defaultFurnitureObjects = {
+      managed: [
+        { id: "steward-desk", kind: "steward", x: "51%", y: "49%", width: "160px", height: "107px", z: 1, mirror: false, characterAnchor: { x: "57%", y: "53%" }, workingAnchor: { x: "57%", y: "53%" }, standingAnchor: { x: "52%", y: "54%" } },
+        { id: "worker-left", kind: "worker", x: "36%", y: "61%", width: "145px", height: "97px", z: 2, mirror: true, characterAnchor: { x: "31%", y: "61%" }, workingAnchor: { x: "31%", y: "61%" }, standingAnchor: { x: "31%", y: "70%" } },
+        { id: "worker-right", kind: "worker", x: "68%", y: "61%", width: "145px", height: "97px", z: 2, mirror: true, characterAnchor: { x: "63%", y: "61%" }, workingAnchor: { x: "73%", y: "61%" }, standingAnchor: { x: "77%", y: "70%" } },
+        { id: "worker-front-left", kind: "worker", x: "46%", y: "76%", width: "145px", height: "97px", z: 3, mirror: true, characterAnchor: { x: "41%", y: "76%" }, workingAnchor: { x: "50%", y: "88%" }, standingAnchor: { x: "52%", y: "100%" } },
+        { id: "worker-front-right", kind: "worker", x: "60%", y: "76%", width: "145px", height: "97px", z: 3, mirror: true, characterAnchor: { x: "55%", y: "76%" }, workingAnchor: { x: "59%", y: "88%" }, standingAnchor: { x: "66%", y: "100%" } }
+      ],
+      direct: [
+        { id: "worker-left", kind: "worker", x: "36%", y: "61%", width: "145px", height: "97px", z: 2, mirror: true, characterAnchor: { x: "31%", y: "61%" }, workingAnchor: { x: "31%", y: "61%" }, standingAnchor: { x: "29%", y: "70%" } },
+        { id: "worker-right", kind: "worker", x: "68%", y: "61%", width: "145px", height: "97px", z: 2, mirror: true, characterAnchor: { x: "63%", y: "61%" }, workingAnchor: { x: "73%", y: "61%" }, standingAnchor: { x: "83%", y: "70%" } },
+        { id: "worker-front-left", kind: "worker", x: "46%", y: "76%", width: "145px", height: "97px", z: 3, mirror: true, characterAnchor: { x: "41%", y: "76%" }, workingAnchor: { x: "50%", y: "88%" }, standingAnchor: { x: "47%", y: "100%" } },
+        { id: "worker-front-right", kind: "worker", x: "60%", y: "76%", width: "145px", height: "97px", z: 3, mirror: true, characterAnchor: { x: "55%", y: "76%" }, workingAnchor: { x: "59%", y: "88%" }, standingAnchor: { x: "65%", y: "100%" } }
+      ]
+    };
+    let floorProjection = defaultFloorProjection;
+
+    function cloneSeats(kind) {
+      const seats = kind === "managed" ? defaultManagedSeats : defaultWorkerSeats;
+      return seats.map((seat) => ({ ...seat, bubble: { ...(seat.bubble || {}) } }));
+    }
+
+    function numericPercent(value, fallback) {
+      const parsed = parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    const calibrationRoleBySeat = {
+      "steward-desk": "clerivan",
+      "worker-left": "aki",
+      "worker-right": "bryn",
+      "worker-front-left": "mira",
+      "worker-front-right": "vera"
+    };
+
+    function officeCalibration(office) {
+      return visualCalibration[office?.furniture] || {};
+    }
+
+    function calibrationRole(office, seat) {
+      const roleId = calibrationRoleBySeat[seat?.id];
+      return officeCalibration(office).roles?.[roleId] || null;
+    }
+
+    function resolveSeatPosition(office, seat) {
+      const calibrated = calibrationRole(office, seat)?.standing;
+      if (calibrated) return { x: `${calibrated.x}%`, y: `${calibrated.y}%`, scale: calibrated.scale };
+      const furnitureObjects = Array.isArray(office?.furnitureObjects)
+        ? office.furnitureObjects
+        : (defaultFurnitureObjects[office?.furniture] || defaultFurnitureObjects.direct);
+      const furniture = furnitureObjects.find((object) => object.id === seat?.furnitureId);
+      if (furniture?.characterAnchor) return { ...furniture.characterAnchor };
+      if (!seat || seat.floorX === undefined || seat.floorY === undefined) {
+        return { x: seat?.x || "50%", y: seat?.y || "50%" };
+      }
+      const projection = office.floorProjection || floorProjection || defaultFloorProjection;
+      const back = projection.back || defaultFloorProjection.back;
+      const axisRight = projection.axisRight || defaultFloorProjection.axisRight;
+      const axisLeft = projection.axisLeft || defaultFloorProjection.axisLeft;
+      const floorX = Number(seat.floorX);
+      const floorY = Number(seat.floorY);
+      const x = numericPercent(back.x, 50) + floorX * numericPercent(axisRight.x, 50) + floorY * numericPercent(axisLeft.x, -50);
+      const y = numericPercent(back.y, 30) + numericPercent(projection.wallOffsetY, 8)
+        + floorX * numericPercent(axisRight.y, 30) + floorY * numericPercent(axisLeft.y, 30);
+      return { x: `${x}%`, y: `${y}%` };
+    }
+
+    function resolveAgentPosition(office, seat, agent) {
+      const profile = calibrationRole(office, seat);
+      if (profile) {
+        const pose = agent?.status === "working" ? profile.working : profile.standing;
+        if (pose) return { x: `${pose.x}%`, y: `${pose.y}%`, scale: pose.scale };
+      }
+      const furnitureObjects = Array.isArray(office?.furnitureObjects)
+        ? office.furnitureObjects
+        : (defaultFurnitureObjects[office?.furniture] || defaultFurnitureObjects.direct);
+      const furniture = furnitureObjects.find((object) => object.id === seat?.furnitureId);
+      if (agent?.status === "working" && furniture?.workingAnchor) return { ...furniture.workingAnchor };
+      const shouldStandAtDesk = ["done", "waiting", "blocked", "idle"].includes(agent?.status);
+      if (shouldStandAtDesk && furniture?.standingAnchor) return { ...furniture.standingAnchor };
+      return resolveSeatPosition(office, seat);
+    }
+
+    function resolveBubblePosition(office, seat) {
+      const roleId = calibrationRoleBySeat[seat?.id];
+      return officeCalibration(office).bubbles?.[roleId] || { x: 50, y: 12, scale: 1 };
+    }
+
+    function bubblePlacement(bubblePosition, roleProfile) {
+      const standing = roleProfile?.standing || roleProfile?.working;
+      if (!standing) return "top";
+      const dx = bubblePosition.x - standing.x;
+      const dy = bubblePosition.y - standing.y;
+      if (Math.abs(dy) > Math.abs(dx) * 0.72) {
+        if (dy < 0) return dx < -5 ? "top-left" : dx > 5 ? "top-right" : "top";
+        return dx < -5 ? "bottom-left" : dx > 5 ? "bottom-right" : "bottom";
+      }
+      return dx < 0 ? "left" : "right";
+    }
+
+    function assignSeats(office, officeAgents) {
+      const assignments = new Map();
+      const used = new Set();
+      officeAgents.forEach((agent) => {
+        let seatIndex = office.seats.findIndex((seat, index) => !used.has(index) && (!seat.kind || seat.kind === agent.kind));
+        if (seatIndex < 0) seatIndex = office.seats.findIndex((seat, index) => !used.has(index));
+        if (seatIndex < 0) return;
+        used.add(seatIndex);
+        assignments.set(agent.id, seatIndex);
+      });
+      return assignments;
+    }
+
+    let officeTemplates = [
+      {
+        id: "managed-01",
+        name: "Clerivan / AgentDesk",
+        typeLabel: "managed office",
+        left: "330px",
+        top: "110px",
+        z: 6,
+        seats: cloneSeats("managed"),
+        furniture: "managed"
+      },
+      {
+        id: "direct-01",
+        name: "Direct Office 1",
+        typeLabel: "direct office",
+        left: `${330 + defaultTileStep.x}px`,
+        top: `${110 + defaultTileStep.y}px`,
+        z: 7,
+        seats: cloneSeats("direct"),
+        furniture: "direct"
+      },
+      {
+        id: "managed-02",
+        name: "Clerivan / Research",
+        typeLabel: "managed office",
+        left: `${330 - defaultTileStep.x}px`,
+        top: `${110 + defaultTileStep.y}px`,
+        z: 5,
+        seats: cloneSeats("managed"),
+        furniture: "managed"
+      },
+      {
+        id: "direct-02",
+        name: "Direct Office 2",
+        typeLabel: "overflow office",
+        left: "330px",
+        top: `${110 + defaultTileStep.y * 2}px`,
+        z: 8,
+        seats: cloneSeats("direct"),
+        furniture: "direct"
+      }
+    ];
+
+    let baseOfficeTemplates = null;
+    let scenarioDefinitions = {
+      "single-managed": { label: "單一 Managed", officeIds: ["managed-01"], defaultAgent: "clerivan" },
+      "dual-managed": { label: "雙 Clerivan", officeIds: ["managed-01", "managed-02"], defaultAgent: "clerivan-02" },
+      "managed-direct": { label: "Managed + Direct", officeIds: ["managed-01", "direct-01"], defaultAgent: "clerivan" },
+      "direct-overflow": { label: "Direct 滿位增生", officeIds: ["direct-01", "direct-02"], defaultAgent: "nora" },
+      "live": { label: "Live Sessions", officeIds: ["direct-01"], defaultAgent: "" }
+    };
+
+    let agents = [
+      { id: "clerivan", officeId: "managed-01", name: "Clerivan", kind: "steward", status: "working", duration: "18m", message: "整理回報簿，等下輪確認", hair: "#e8c783", coat: "#2d3e62", x: "49%", y: "45%", bubbleX: "50%", bubbleY: "-3px", bubbleTransform: "translate(-50%, -100%)" },
+      { id: "aki", officeId: "managed-01", name: "Aki", kind: "worker", status: "waiting", duration: "7m", message: "等 Glen 確認命名", hair: "#533d35", coat: "#3c536d", x: "24%", y: "70%", bubbleX: "18%", bubbleY: "-8px", bubbleTransform: "translate(-18%, -100%)" },
+      { id: "bryn", officeId: "managed-01", name: "Bryn", kind: "worker", status: "blocked", duration: "12m", message: "缺一張驗收截圖", hair: "#77503b", coat: "#4d6658", x: "72%", y: "66%", bubbleX: "82%", bubbleY: "-8px", bubbleTransform: "translate(-82%, -100%)" },
+      { id: "mira", officeId: "managed-01", name: "Mira", kind: "worker", status: "done", duration: "done", message: "provider 整理完成", hair: "#70463b", coat: "#6a5b4b", x: "63%", y: "25%", bubbleX: "86%", bubbleY: "-4px", bubbleTransform: "translate(-86%, -100%)" },
+      { id: "nora", officeId: "direct-01", name: "Nora", kind: "worker", status: "working", duration: "9m", message: "整理素材 brief", hair: "#6a4b3e", coat: "#536b61", x: "25%", y: "67%", bubbleX: "18%", bubbleY: "-8px", bubbleTransform: "translate(-18%, -100%)" },
+      { id: "orin", officeId: "direct-01", name: "Orin", kind: "worker", status: "waiting", duration: "4m", message: "等 Glen 分派下一件事", hair: "#57413a", coat: "#5d536a", x: "54%", y: "53%", bubbleX: "50%", bubbleY: "-3px", bubbleTransform: "translate(-50%, -100%)" },
+      { id: "vera", officeId: "direct-01", name: "Vera", kind: "worker", status: "done", duration: "done", message: "節奏檢查完成", hair: "#876046", coat: "#596c73", x: "77%", y: "66%", bubbleX: "86%", bubbleY: "-8px", bubbleTransform: "translate(-86%, -100%)" },
+      { id: "ian", officeId: "direct-01", name: "Ian", kind: "worker", status: "blocked", duration: "14m", message: "等風格拍板", hair: "#3f3836", coat: "#576b80", x: "65%", y: "25%", bubbleX: "86%", bubbleY: "-4px", bubbleTransform: "translate(-86%, -100%)" }
+      ,{ id: "clerivan-02", officeId: "managed-02", name: "Clerivan II", kind: "steward", status: "waiting", duration: "6m", message: "等研究室確認方向", hair: "#e8c783", coat: "#354766", x: "49%", y: "45%", bubbleX: "50%", bubbleY: "-3px", bubbleTransform: "translate(-50%, -100%)" }
+      ,{ id: "rhea", officeId: "managed-02", name: "Rhea", kind: "worker", status: "working", duration: "11m", message: "整理研究筆記", hair: "#6b4a3a", coat: "#536b61", x: "24%", y: "70%", bubbleX: "18%", bubbleY: "-8px", bubbleTransform: "translate(-18%, -100%)" }
+      ,{ id: "noah", officeId: "managed-02", name: "Noah", kind: "worker", status: "done", duration: "done", message: "資料索引完成", hair: "#4d3b35", coat: "#5d536a", x: "72%", y: "66%", bubbleX: "82%", bubbleY: "-8px", bubbleTransform: "translate(-82%, -100%)" }
+      ,{ id: "sena", officeId: "managed-02", name: "Sena", kind: "worker", status: "blocked", duration: "8m", message: "等一份來源文件", hair: "#805b45", coat: "#4d6658", x: "63%", y: "25%", bubbleX: "86%", bubbleY: "-4px", bubbleTransform: "translate(-86%, -100%)" }
+      ,{ id: "luca", officeId: "direct-02", name: "Luca", kind: "worker", status: "working", duration: "3m", message: "執行獨立任務", hair: "#543d36", coat: "#3c536d", x: "25%", y: "67%", bubbleX: "18%", bubbleY: "-8px", bubbleTransform: "translate(-18%, -100%)" }
+      ,{ id: "ivy", officeId: "direct-02", name: "Ivy", kind: "worker", status: "waiting", duration: "2m", message: "等待下一個指令", hair: "#795342", coat: "#596c73", x: "77%", y: "66%", bubbleX: "86%", bubbleY: "-8px", bubbleTransform: "translate(-86%, -100%)" }
+    ];
+
+    const embeddedSessionEvents = [
+      { sessionId: "claude-20260915-001", source: "claude-code", agentId: "aki", reportTo: "clerivan", state: "waiting_user", startedAt: "2026-09-15T09:42:00+08:00", updatedAt: "2026-09-15T09:49:00+08:00", summary: "等 Glen 確認命名" },
+      { sessionId: "codex-20260915-014", source: "codex", agentId: "bryn", reportTo: "clerivan", state: "permission_required", startedAt: "2026-09-15T09:37:00+08:00", updatedAt: "2026-09-15T09:49:00+08:00", summary: "缺一張驗收截圖" },
+      { sessionId: "claude-20260915-022", source: "claude-code", agentId: "nora", reportTo: null, state: "running", startedAt: "2026-09-15T09:40:00+08:00", updatedAt: "2026-09-15T09:49:00+08:00", summary: "整理素材 brief" },
+      { sessionId: "codex-20260915-028", source: "codex", agentId: "mira", reportTo: "clerivan", state: "completed", startedAt: "2026-09-15T09:18:00+08:00", updatedAt: "2026-09-15T09:44:00+08:00", summary: "provider 整理完成" }
+    ];
+
+    const statusLabels = { working: "工作中", asking: "問你", waiting: "等你", blocked: "卡住", done: "完成", idle: "待命" };
+    const scene = document.querySelector("#scene");
+    const appRoot = document.querySelector(".app");
+    const officeLayer = document.querySelector("#officeLayer");
+    const agentPicker = document.querySelector("#agentPicker");
+    const statePicker = document.querySelector("#statePicker");
+    const scenarioPicker = document.querySelector("#scenarioPicker");
+    const toolbarState = document.querySelector("#toolbarState");
+    const restoreHiddenAgentsButton = document.querySelector("#restoreHiddenAgents");
+    const officeSummary = document.querySelector("#officeSummary");
+    const agentSummary = document.querySelector("#agentSummary");
+    const liveRegion = document.querySelector("#liveRegion");
+    const agentContextMenu = document.querySelector("#agentContextMenu");
+    let activeScenarioId = "single-managed";
+    let selectedAgentId = "clerivan";
+    const standbyStorageKey = "agentdesk.standby-overrides";
+    const hiddenAgentsStorageKey = "agentdesk.hidden-agents";
+    const standbyOverrides = new Map();
+    const hiddenAgentIds = new Set();
+    const reportFlashUntil = new Map();
+    const desktopMode = Boolean(window.agentDeskDesktop?.isDesktop);
+    const desktopPadding = 32;
+    let desktopBaseOffset = { x: 0, y: 0 };
+    let visualCalibration = {};
+
+    function setupDesktopChrome() {
+      if (!desktopMode) return;
+      document.body.classList.add("desktop-mode");
+    }
+
+    setupDesktopChrome();
+
+    function setupDesktopFloorDrag() {
+      if (!desktopMode) return;
+      let dragState = null;
+      const release = (event) => {
+        if (!dragState || (event && event.pointerId !== undefined && event.pointerId !== dragState.pointerId)) return;
+        dragState = null;
+        document.body.classList.remove("floor-dragging");
+      };
+
+      document.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0 || !event.target.closest?.(".tile-drag-area")) return;
+        dragState = {
+          pointerId: event.pointerId,
+          lastX: event.screenX,
+          lastY: event.screenY
+        };
+        event.target.setPointerCapture?.(event.pointerId);
+        document.body.classList.add("floor-dragging");
+        event.preventDefault();
+      }, true);
+
+      document.addEventListener("pointermove", (event) => {
+        if (!dragState || event.pointerId !== dragState.pointerId) return;
+        const deltaX = event.screenX - dragState.lastX;
+        const deltaY = event.screenY - dragState.lastY;
+        dragState.lastX = event.screenX;
+        dragState.lastY = event.screenY;
+        if (deltaX || deltaY) window.agentDeskDesktop?.moveWindowBy(deltaX, deltaY);
+        event.preventDefault();
+      }, true);
+
+      document.addEventListener("pointerup", release, true);
+      document.addEventListener("pointercancel", release, true);
+      window.addEventListener("blur", () => release());
+    }
+
+    setupDesktopFloorDrag();
+
+    try {
+      const storedOverrides = JSON.parse(localStorage.getItem(standbyStorageKey) || "[]");
+      if (Array.isArray(storedOverrides)) {
+        storedOverrides.forEach((item) => {
+          if (item && item.agentId) standbyOverrides.set(item.agentId, item);
+        });
+      }
+    } catch (error) {
+      // A stale or unavailable local storage should not block the wireframe.
+    }
+
+    try {
+      const storedHiddenAgents = JSON.parse(localStorage.getItem(hiddenAgentsStorageKey) || "[]");
+      if (Array.isArray(storedHiddenAgents)) storedHiddenAgents.forEach((agentId) => hiddenAgentIds.add(String(agentId)));
+    } catch (error) {
+      // A stale or unavailable local storage should not block the wireframe.
+    }
+
+    const previewParams = new URLSearchParams(window.location.search);
+    const officeArtPath = "../assets/generated/agentdesk-office-shell-v4-alpha.png";
+    const workerDeskArtPath = "../assets/generated/agentdesk-worker-desk-set-v1-alpha.png";
+    const stewardDeskArtPath = "../assets/generated/agentdesk-steward-desk-set-v1-alpha.png";
+    const clerivanArtPath = "../assets/generated/agentdesk-clerivan-chibi-v2-calm-alpha.png";
+    const clerivanWorkingArtPath = "../assets/generated/agentdesk-clerivan-working-v1-alpha.png";
+    const workerArtPath = "../assets/generated/agentdesk-worker-chibi-v1-alpha.png";
+    const workerArtPaths = {
+      aki: "../assets/generated/agentdesk-worker-aki-v1-alpha.png",
+      bryn: "../assets/generated/agentdesk-worker-bryn-v1-alpha.png",
+      mira: "../assets/generated/agentdesk-worker-mira-v1-alpha.png",
+      vera: "../assets/generated/agentdesk-worker-vera-v1-alpha.png"
+    };
+    const workerSittingArtPaths = {
+      aki: "../assets/generated/agentdesk-worker-aki-working-v2-alpha.png",
+      bryn: "../assets/generated/agentdesk-worker-bryn-working-v2-alpha.png",
+      mira: "../assets/generated/agentdesk-worker-mira-working-v2-alpha.png",
+      vera: "../assets/generated/agentdesk-worker-vera-working-v2-alpha.png"
+    };
+    const workerArtAliases = {
+      // Preview sessions keep their own stable ids while borrowing the generated role roster.
+      nora: "aki",
+      orin: "bryn",
+      ian: "mira",
+      luca: "vera",
+      ivy: "aki"
+    };
+    const workerArtVariants = Object.values(workerArtPaths);
+    const workerArtAssignmentsStorageKey = "agentdesk-worker-art-assignments-v1";
+    const workerArtAssignments = new Map();
+    try {
+      const storedWorkerArtAssignments = JSON.parse(localStorage.getItem(workerArtAssignmentsStorageKey) || "{}");
+      Object.entries(storedWorkerArtAssignments).forEach(([agentId, artPath]) => {
+        if (agentId && typeof artPath === "string" && workerArtVariants.includes(artPath)) workerArtAssignments.set(agentId, artPath);
+      });
+    } catch (error) {
+      // A stale or unavailable role mapping should not block the wireframe.
+    }
+    const liveMode = previewParams.get("live") === "1" || previewParams.get("monitor") === "1";
+    const liveEndpoint = previewParams.get("endpoint") || "http://127.0.0.1:4317/api/sessions";
+    if (liveMode) activeScenarioId = "live";
+    if (scenarioDefinitions[previewParams.get("scenario")]) activeScenarioId = previewParams.get("scenario");
+    if (previewParams.get("offices") === "2") activeScenarioId = "managed-direct";
+    if (liveMode) activeScenarioId = "live";
+    selectedAgentId = scenarioDefinitions[activeScenarioId].defaultAgent;
+    const previewAgent = agents.find((agent) => agent.id === previewParams.get("agent"));
+    if (previewAgent && scenarioDefinitions[activeScenarioId].officeIds.includes(previewAgent.officeId)) selectedAgentId = previewAgent.id;
+    const previewStatus = previewParams.get("status");
+    const previewStatuses = (previewParams.get("statuses") || "")
+      .split(",")
+      .map((status) => status.trim())
+      .filter((status) => statusLabels[status]);
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", "\"": "&quot;" }[character]));
+    }
+
+    function workerArtHashIndex(agentId) {
+      let hash = 2166136261;
+      for (const character of agentId) {
+        hash ^= character.charCodeAt(0);
+        hash = Math.imul(hash, 16777619);
+      }
+      return workerArtVariants.length ? (hash >>> 0) % workerArtVariants.length : 0;
+    }
+
+    function preferredWorkerArtPath(agent) {
+      const agentId = String(agent.id || "").toLowerCase();
+      return workerArtPaths[agentId] || workerArtPaths[workerArtAliases[agentId]] || workerArtVariants[workerArtHashIndex(agentId)] || workerArtPath;
+    }
+
+    function persistWorkerArtAssignments() {
+      try {
+        localStorage.setItem(workerArtAssignmentsStorageKey, JSON.stringify(Object.fromEntries(workerArtAssignments)));
+      } catch (error) {
+        // A storage failure should not block the current visual render.
+      }
+    }
+
+    function ensureWorkerArtAssignments(activeAgents) {
+      const activeWorkers = activeAgents.filter((agent) => agent.kind !== "steward").slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
+      const usedPaths = new Set();
+      let changed = false;
+      activeWorkers.forEach((agent) => {
+        const agentId = String(agent.id || "");
+        const existingPath = workerArtAssignments.get(agentId);
+        if (existingPath && !usedPaths.has(existingPath)) {
+          usedPaths.add(existingPath);
+          return;
+        }
+        const preferredPath = preferredWorkerArtPath(agent);
+        const unusedPath = workerArtVariants.find((path) => !usedPaths.has(path));
+        const assignedPath = unusedPath || preferredPath;
+        if (existingPath !== assignedPath) changed = true;
+        workerArtAssignments.set(agentId, assignedPath);
+        usedPaths.add(assignedPath);
+      });
+      if (changed) persistWorkerArtAssignments();
+    }
+
+    function workerArtPathForAgent(agent) {
+      return workerArtAssignments.get(String(agent.id || "")) || preferredWorkerArtPath(agent);
+    }
+
+    function workerArtKeyForAgent(agent) {
+      const agentId = String(agent?.id || "").toLowerCase();
+      const directKey = Object.keys(workerArtPaths).find((key) => key === agentId);
+      if (directKey) return directKey;
+      if (workerArtAliases[agentId]) return workerArtAliases[agentId];
+      const assignedPath = workerArtPathForAgent(agent);
+      return Object.entries(workerArtPaths).find(([, path]) => path === assignedPath)?.[0] || "aki";
+    }
+
+    function workerWorkingArtPathForAgent(agent) {
+      return workerSittingArtPaths[workerArtKeyForAgent(agent)] || workerArtPathForAgent(agent);
+    }
+
+    function visibleOffices() {
+      const officeIds = scenarioDefinitions[activeScenarioId].officeIds;
+      return officeTemplates.filter((office) => officeIds.includes(office.id));
+    }
+
+    function furnitureLayerMarkup(office) {
+      const objects = Array.isArray(office.furnitureObjects)
+        ? office.furnitureObjects
+        : (defaultFurnitureObjects[office.furniture] || defaultFurnitureObjects.direct);
+      const calibration = officeCalibration(office);
+      const furniture = objects.map((object) => {
+        const source = object.kind === "steward" ? stewardDeskArtPath : workerDeskArtPath;
+        const placement = calibration.furniture?.[object.id];
+        const scale = Number(placement?.scale) || 1;
+        const x = placement ? `${placement.x}%` : object.x;
+        const y = placement ? `${placement.y}%` : object.y;
+        const width = numericPercent(object.width, 0) * scale;
+        const height = numericPercent(object.height, 0) * scale;
+        const mirror = object.mirror ? " scaleX(-1)" : "";
+        return `<span class="furniture-piece furniture-${object.kind}" data-furniture-id="${escapeHtml(object.id)}" style="--furniture-x:${x};--furniture-y:${y};--furniture-width:${width}px;--furniture-height:${height}px;--furniture-z:${object.z || 1};--furniture-mirror:${mirror}"><img class="furniture-sprite" src="${source}" alt="" draggable="false"></span>`;
+      }).join("");
+      return `<div class="office-furniture-layer" aria-hidden="true">${furniture}</div>`;
+    }
+
+    function renderOffices() {
+      const offices = visibleOffices();
+      if (desktopMode && offices.length) {
+        const minLeft = Math.min(...offices.map((office) => parseFloat(office.left)));
+        const minTop = Math.min(...offices.map((office) => parseFloat(office.top)));
+        const maxRight = Math.max(...offices.map((office) => parseFloat(office.left) + tileWidth));
+        const maxBottom = Math.max(...offices.map((office) => parseFloat(office.top) + tileHeight));
+        const width = Math.ceil(maxRight - minLeft + desktopPadding * 2);
+        const height = Math.ceil(maxBottom - minTop + desktopPadding * 2);
+        appRoot.style.width = `${width}px`;
+        scene.style.width = `${width}px`;
+        scene.style.height = `${height}px`;
+        desktopBaseOffset = { x: desktopPadding - minLeft, y: desktopPadding - minTop };
+        officeLayer.style.setProperty("--office-offset-x", `${desktopBaseOffset.x}px`);
+        officeLayer.style.setProperty("--office-offset-y", `${desktopBaseOffset.y}px`);
+      } else {
+        appRoot.style.width = "1200px";
+        desktopBaseOffset = { x: 0, y: 0 };
+        officeLayer.style.setProperty("--office-offset-x", "0px");
+        officeLayer.style.setProperty("--office-offset-y", "0px");
+      }
+      const tilesMarkup = offices.map((office) => {
+        const room = officeCalibration(office).furniture?.room || { x: 50, y: 50, scale: 1 };
+        const seats = office.seats.map((seat) => {
+          const position = resolveSeatPosition(office, seat);
+          return `<span class="seat-mark" style="--seat-x:${position.x};--seat-y:${position.y}" aria-hidden="true"></span>`;
+        }).join("");
+        return `
+          <section class="office-tile" data-office-id="${office.id}" style="--tile-left:${office.left};--tile-top:${office.top};--tile-z:${office.z}" aria-label="${escapeHtml(office.name)}">
+            <div class="tile-floor" aria-hidden="true"></div>
+            <div class="tile-floor-inner" aria-hidden="true"></div>
+            <div class="tile-drag-area" aria-hidden="true"></div>
+            <div class="tile-room">
+              <img class="office-art" src="${officeArtPath}" alt="" draggable="false" style="--room-x:${room.x}%;--room-y:${room.y}%;--room-width:${(room.scale || 1) * 100}%;--room-height:${(room.scale || 1) * 100}%">
+              <div class="office-seats" aria-hidden="true">${seats}</div>
+            </div>
+            ${furnitureLayerMarkup(office)}
+            <div class="office-agent-layer" data-office-agent-layer="${office.id}"></div>
+            <div class="office-agent-front-layer" data-office-agent-front-layer="${office.id}"></div>
+          </section>
+        `;
+      }).join("");
+      // Bubble layers are rendered after every tile as scene-level siblings so bubbles are
+      // never trapped inside a single tile's stacking context (a lower-z office's bubble
+      // would otherwise be covered and click-blocked by a higher-z neighbouring tile).
+      const bubbleLayersMarkup = offices.map((office) =>
+        `<div class="office-bubble-layer" data-office-bubble-layer="${office.id}" style="--tile-left:${office.left};--tile-top:${office.top}" aria-label="Session 回報泡泡"></div>`
+      ).join("");
+      officeLayer.innerHTML = tilesMarkup + bubbleLayersMarkup;
+    }
+
+    function resizeDesktopCanvasToVisualBounds() {
+      if (!desktopMode || !visibleOffices().length) return;
+      officeLayer.style.setProperty("--office-offset-x", `${desktopBaseOffset.x}px`);
+      officeLayer.style.setProperty("--office-offset-y", `${desktopBaseOffset.y}px`);
+      const sceneRect = scene.getBoundingClientRect();
+      const visualNodes = scene.querySelectorAll(".office-tile, .furniture-piece, .agent-figure, .agent-bubble");
+      const boxes = [...visualNodes].map((node) => {
+        const rect = node.getBoundingClientRect();
+        return {
+          left: rect.left - sceneRect.left,
+          top: rect.top - sceneRect.top,
+          right: rect.right - sceneRect.left,
+          bottom: rect.bottom - sceneRect.top
+        };
+      });
+      if (!boxes.length) return;
+
+      const minLeft = Math.min(...boxes.map((box) => box.left));
+      const minTop = Math.min(...boxes.map((box) => box.top));
+      const maxRight = Math.max(...boxes.map((box) => box.right));
+      const maxBottom = Math.max(...boxes.map((box) => box.bottom));
+      const shiftX = desktopPadding - minLeft;
+      const shiftY = desktopPadding - minTop;
+      const width = Math.ceil(maxRight - minLeft + desktopPadding * 2);
+      const height = Math.ceil(maxBottom - minTop + desktopPadding * 2);
+
+      appRoot.style.width = `${width}px`;
+      scene.style.width = `${width}px`;
+      scene.style.height = `${height}px`;
+      officeLayer.style.setProperty("--office-offset-x", `${desktopBaseOffset.x + shiftX}px`);
+      officeLayer.style.setProperty("--office-offset-y", `${desktopBaseOffset.y + shiftY}px`);
+      window.agentDeskDesktop?.resizeToContent(width, height);
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+
+    function renderAgents() {
+      ensureWorkerArtAssignments(agents.filter((agent) => visibleOffices().some((office) => office.id === agent.officeId)));
+      visibleOffices().forEach((office) => {
+        const layer = document.querySelector(`[data-office-agent-layer="${office.id}"]`);
+        const frontLayer = document.querySelector(`[data-office-agent-front-layer="${office.id}"]`);
+        const bubbleLayer = document.querySelector(`[data-office-bubble-layer="${office.id}"]`);
+        if (bubbleLayer) bubbleLayer.innerHTML = "";
+        const allOfficeAgents = agents.filter((agent) => agent.officeId === office.id);
+        const officeAgents = allOfficeAgents.filter((agent) => !hiddenAgentIds.has(agent.id));
+        const seatAssignments = assignSeats(office, allOfficeAgents);
+        const now = Date.now();
+        const buttonMarkup = [];
+        const frontButtonMarkup = [];
+        const bubbleMarkup = [];
+        officeAgents.forEach((agent) => {
+          const seatIndex = seatAssignments.get(agent.id);
+          const seat = office.seats[seatIndex] || {};
+          const position = resolveAgentPosition(office, seat, agent);
+          const agentX = position.x || agent.x;
+          const agentY = position.y || agent.y;
+          const scale = Number(position.scale) || 1;
+          const statusLabel = statusLabels[agent.status];
+          const durationLabel = agent.status === "idle" ? "待命" : agent.duration;
+          const isWorking = agent.status === "working";
+          const artPath = agent.kind === "steward"
+            ? (isWorking ? clerivanWorkingArtPath : clerivanArtPath)
+            : (isWorking ? workerWorkingArtPathForAgent(agent) : workerArtPathForAgent(agent));
+          const imageSize = agent.kind === "steward"
+            ? (isWorking ? [66, 99] : [92, 138])
+            : (isWorking ? [56, 82] : [74, 108]);
+          const figure = `<span class="figure figure-image" aria-hidden="true"><img class="agent-sprite" src="${artPath}" alt="" draggable="false"></span>`;
+          const isReporting = (reportFlashUntil.get(agent.id) || 0) > now;
+          const bubblePosition = resolveBubblePosition(office, seat);
+          const bubblePlacementValue = bubblePlacement(bubblePosition, calibrationRole(office, seat));
+          // Every visible character shows its own bubble (working ones use the compact
+          // half-width variant); density is managed by culling stale sessions upstream,
+          // not by hiding who is waiting on Glen.
+          const shouldShowBubble = true;
+          if (shouldShowBubble) {
+            const bubbleSummary = agent.status === "working" ? "" : `<span>${escapeHtml(agent.message)}</span>`;
+            bubbleMarkup.push(`<span class="agent-bubble status-${agent.status}${agent.status === "working" ? " is-working" : ""}" data-agent-bubble="true" data-agent-id="${escapeHtml(agent.id)}" data-seat-id="${escapeHtml(seat.id || "seat")}" data-session-id="${escapeHtml(agent.sessionId || agent.id)}" data-office-id="${escapeHtml(office.id)}" data-placement="${bubblePlacementValue}" style="--bubble-x:${bubblePosition.x}%;--bubble-y:${bubblePosition.y}%;--bubble-scale:${bubblePosition.scale || 1}" tabindex="0" aria-label="開啟 ${escapeHtml(agent.name)} 的操作選單"><strong class="bubble-agent-name"><span class="state-pip" aria-hidden="true"></span>${escapeHtml(agent.name)}</strong><strong class="bubble-status">${escapeHtml(statusLabel)} · ${escapeHtml(durationLabel)}</strong>${bubbleSummary}</span>`);
+          }
+          const button = `
+            <button class="agent-figure agent-${agent.kind} status-${agent.status}${isWorking ? " is-sitting" : ""}${agent.status === "done" ? " is-front-of-desk" : ""}${selectedAgentId === agent.id ? " is-selected" : ""}${isReporting ? " is-reporting" : ""}${shouldShowBubble ? " has-bubble" : ""}" data-agent-id="${agent.id}" data-seat-id="${escapeHtml(seat.id || "seat")}" style="--agent-x:${agentX};--agent-y:${agentY};--figure-width:${imageSize[0] * scale}px;--figure-height:${imageSize[1] * scale}px;--agent-hair:${agent.hair};--agent-coat:${agent.coat}" type="button" aria-label="${escapeHtml(agent.name)}，${escapeHtml(statusLabel)}，${escapeHtml(agent.message)}">
+              ${figure}
+            </button>
+          `;
+          (agent.status === "done" ? frontButtonMarkup : buttonMarkup).push(button);
+        });
+        layer.innerHTML = buttonMarkup.join("");
+        if (frontLayer) frontLayer.innerHTML = frontButtonMarkup.join("");
+        if (bubbleLayer) bubbleLayer.innerHTML = bubbleMarkup.join("");
+      });
+      document.querySelectorAll(".agent-figure").forEach((button) => {
+        button.addEventListener("click", () => handleAgentClick(button.dataset.agentId));
+        button.addEventListener("contextmenu", (event) => openAgentContextMenu(event, button.dataset.agentId));
+      });
+      document.querySelectorAll("[data-agent-bubble]").forEach((bubble) => {
+        const agentId = bubble.dataset.agentId;
+        bubble.addEventListener("click", (event) => {
+          event.stopPropagation();
+          openAgentContextMenu(event, agentId);
+        });
+        bubble.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          event.stopPropagation();
+          openAgentContextMenu(event, agentId);
+        });
+      });
+    }
+
+    function renderAgentPicker() {
+      const visibleAgents = agents.filter((agent) => !hiddenAgentIds.has(agent.id) && visibleOffices().some((office) => office.id === agent.officeId));
+      agentPicker.innerHTML = visibleAgents.map((agent) => `<button type="button" class="${selectedAgentId === agent.id ? "is-active" : ""}" data-picker-agent="${agent.id}">${escapeHtml(agent.name)}</button>`).join("");
+      agentPicker.querySelectorAll("[data-picker-agent]").forEach((button) => button.addEventListener("click", () => selectAgent(button.dataset.pickerAgent)));
+    }
+
+    function renderStatePicker() {
+      const selected = agents.find((agent) => agent.id === selectedAgentId);
+      if (!selected) {
+        statePicker.innerHTML = "";
+        return;
+      }
+      statePicker.innerHTML = Object.entries(statusLabels).map(([status, label]) => `<button type="button" class="${selected.status === status ? "is-active" : ""}" data-state="${status}">${label}</button>`).join("");
+      statePicker.querySelectorAll("[data-state]").forEach((button) => button.addEventListener("click", () => setAgentStatus(button.dataset.state)));
+    }
+
+    function renderSummary() {
+      const visibleAgents = agents.filter((agent) => !hiddenAgentIds.has(agent.id) && visibleOffices().some((office) => office.id === agent.officeId));
+      const visibleOfficeCount = visibleOffices().length;
+      scene.dataset.officeCount = String(visibleOfficeCount);
+      const maxBottom = visibleOffices().reduce((bottom, office) => Math.max(bottom, parseFloat(office.top) + tileHeight), 0);
+      if (!desktopMode) scene.style.height = `${Math.max(720, maxBottom + 72)}px`;
+      officeSummary.textContent = `${visibleOfficeCount} office${visibleOfficeCount > 1 ? "s" : ""}`;
+      agentSummary.textContent = `${visibleAgents.length} characters`;
+      scenarioPicker.value = activeScenarioId;
+      restoreHiddenAgentsButton.classList.toggle("is-visible", hiddenAgentIds.size > 0);
+      restoreHiddenAgentsButton.setAttribute("aria-label", `顯示已關閉角色 (${hiddenAgentIds.size})`);
+      const restoreHiddenCount = document.querySelector("#restoreHiddenCount");
+      if (restoreHiddenCount) restoreHiddenCount.textContent = String(hiddenAgentIds.size);
+    }
+
+    function renderToolbarState() {
+      const selected = agents.find((agent) => agent.id === selectedAgentId);
+      if (!selected) return;
+      toolbarState.textContent = `${selected.name} · ${statusLabels[selected.status]}`;
+    }
+
+    function render() {
+      renderOffices();
+      renderAgents();
+      resizeDesktopCanvasToVisualBounds();
+      renderAgentPicker();
+      renderStatePicker();
+      renderSummary();
+      renderToolbarState();
+    }
+
+    function selectAgent(agentId) {
+      const agent = agents.find((item) => item.id === agentId);
+      if (!agent) return;
+      closeAgentContextMenu();
+      selectedAgentId = agentId;
+      render();
+      liveRegion.textContent = `已選擇 ${agent.name}，目前狀態是${statusLabels[agent.status]}。`;
+    }
+
+    function persistStandbyOverrides() {
+      try {
+        localStorage.setItem(standbyStorageKey, JSON.stringify([...standbyOverrides.values()]));
+      } catch (error) {
+        // Persistence is optional; the in-memory override still works for this session.
+      }
+    }
+
+    function isAcknowledgable(agent) {
+      return agent && (agent.status === "waiting" || agent.status === "done");
+    }
+
+    function markStandby(agent) {
+      standbyOverrides.set(agent.id, {
+        agentId: agent.id,
+        sessionId: agent.sessionId || null,
+        updatedAt: agent.updatedAt || null
+      });
+      agent.status = "idle";
+      agent.duration = "待命";
+      agent.message = "已確認，待命中";
+      persistStandbyOverrides();
+    }
+
+    function handleAgentClick(agentId) {
+      const agent = agents.find((item) => item.id === agentId);
+      if (!agent) return;
+      selectedAgentId = agentId;
+      if (isAcknowledgable(agent)) {
+        markStandby(agent);
+        render();
+        liveRegion.textContent = `${agent.name} 已確認，切換為待命。`;
+        return;
+      }
+      render();
+      liveRegion.textContent = `已選擇 ${agent.name}，目前狀態是${statusLabels[agent.status]}。`;
+    }
+
+    function closeAgentContextMenu() {
+      agentContextMenu.hidden = true;
+      agentContextMenu.innerHTML = "";
+      delete agentContextMenu.dataset.agentId;
+      delete agentContextMenu.dataset.side;
+    }
+
+    function reportAgent(agentId) {
+      const agent = agents.find((item) => item.id === agentId);
+      if (!agent) return;
+      selectedAgentId = agentId;
+      reportFlashUntil.set(agentId, Date.now() + 1800);
+      closeAgentContextMenu();
+      render();
+      liveRegion.textContent = `${agent.name} 已再次回報目前進度：${agent.message}。`;
+      window.setTimeout(() => {
+        if ((reportFlashUntil.get(agentId) || 0) <= Date.now()) {
+          reportFlashUntil.delete(agentId);
+          render();
+        }
+      }, 1900);
+    }
+
+    function persistHiddenAgents() {
+      try {
+        localStorage.setItem(hiddenAgentsStorageKey, JSON.stringify([...hiddenAgentIds]));
+      } catch (error) {
+        // Persistence is optional; the in-memory close action still works.
+      }
+    }
+
+    function hideAgent(agentId) {
+      const agent = agents.find((item) => item.id === agentId);
+      if (!agent) return;
+      hiddenAgentIds.add(agentId);
+      persistHiddenAgents();
+      closeAgentContextMenu();
+      if (selectedAgentId === agentId) {
+        const nextAgent = agents.find((item) => item.id !== agentId && !hiddenAgentIds.has(item.id));
+        selectedAgentId = nextAgent?.id || "";
+      }
+      render();
+      liveRegion.textContent = `${agent.name} 已從畫面關閉，來源 agent 仍持續工作。`;
+    }
+
+    function restoreHiddenAgents() {
+      if (!hiddenAgentIds.size) return;
+      hiddenAgentIds.clear();
+      persistHiddenAgents();
+      if (!selectedAgentId && agents[0]) selectedAgentId = agents[0].id;
+      render();
+      liveRegion.textContent = "已重新顯示關閉的角色。";
+    }
+
+    function positionAgentContextMenu(agentId) {
+      if (agentContextMenu.hidden) return;
+      const figure = document.querySelector(`[data-agent-id="${CSS.escape(agentId)}"]`);
+      const bubble = officeLayer.querySelector(`[data-agent-bubble][data-agent-id="${CSS.escape(agentId)}"]`);
+      const anchor = bubble || figure;
+      const anchorRect = anchor?.getBoundingClientRect?.();
+      if (!anchorRect) return;
+
+      // Measure the real menu instead of estimating its height from item count.
+      agentContextMenu.style.left = "0px";
+      agentContextMenu.style.top = "0px";
+      const menuRect = agentContextMenu.getBoundingClientRect();
+      const padding = 8;
+      const gap = 8;
+      const rightLeft = anchorRect.right + gap;
+      const leftLeft = anchorRect.left - menuRect.width - gap;
+      const fitsRight = rightLeft + menuRect.width <= window.innerWidth - padding;
+      const fitsLeft = leftLeft >= padding;
+      let left;
+      if (fitsRight) {
+        left = rightLeft;
+        agentContextMenu.dataset.side = "right";
+      } else if (fitsLeft) {
+        left = leftLeft;
+        agentContextMenu.dataset.side = "left";
+      } else {
+        left = clamp(rightLeft, padding, Math.max(padding, window.innerWidth - menuRect.width - padding));
+        agentContextMenu.dataset.side = left < anchorRect.left ? "left" : "right";
+      }
+      const top = clamp(anchorRect.top, padding, Math.max(padding, window.innerHeight - menuRect.height - padding));
+      agentContextMenu.style.left = `${Math.round(left)}px`;
+      agentContextMenu.style.top = `${Math.round(top)}px`;
+    }
+
+    function openAgentContextMenu(event, agentId) {
+      event.preventDefault();
+      event.stopPropagation();
+      const agent = agents.find((item) => item.id === agentId);
+      if (!agent) return;
+      if (!agentContextMenu.hidden && agentContextMenu.dataset.agentId === agentId) {
+        closeAgentContextMenu();
+        return;
+      }
+      selectedAgentId = agentId;
+      const stateActions = Object.entries(statusLabels).map(([status, label]) => ({
+        action: `status:${status}`,
+        label: `顯示為${label}`
+      }));
+      const menuItems = [
+        { action: "report", label: "再回報一次目前進度" },
+        ...stateActions,
+        { separator: true },
+        { action: "hide", label: "關閉角色（不影響 agent 工作）", danger: true }
+      ];
+      agentContextMenu.innerHTML = menuItems.map((item) => item.separator
+        ? `<div class="menu-separator" role="separator"></div>`
+        : `<button type="button" role="menuitem" data-context-action="${item.action}"${item.danger ? " class=\"is-danger\"" : ""}>${escapeHtml(item.label)}</button>`
+      ).join("");
+      render();
+      agentContextMenu.dataset.agentId = agentId;
+      agentContextMenu.hidden = false;
+      positionAgentContextMenu(agentId);
+      resizeDesktopCanvasToVisualBounds();
+      positionAgentContextMenu(agentId);
+      agentContextMenu.querySelectorAll("[data-context-action]").forEach((button) => button.addEventListener("click", () => {
+        const action = button.dataset.contextAction;
+        if (action === "report") reportAgent(agentId);
+        else if (action === "hide") hideAgent(agentId);
+        else if (action.startsWith("status:")) {
+          selectedAgentId = agentId;
+          setAgentStatus(action.slice("status:".length));
+        }
+      }));
+      const firstItem = agentContextMenu.querySelector("[data-context-action]");
+      firstItem?.focus();
+    }
+
+    window.addEventListener("resize", () => {
+      if (!agentContextMenu.hidden && agentContextMenu.dataset.agentId) positionAgentContextMenu(agentContextMenu.dataset.agentId);
+    });
+
+    function setAgentStatus(status) {
+      const agent = agents.find((item) => item.id === selectedAgentId);
+      if (!agent || !statusLabels[status]) return;
+      closeAgentContextMenu();
+      if (status === "idle") {
+        markStandby(agent);
+      } else {
+        standbyOverrides.delete(agent.id);
+        persistStandbyOverrides();
+        agent.status = status;
+      }
+      render();
+      liveRegion.textContent = `${agent.name} 已切換為${statusLabels[status]}。`;
+    }
+
+    function setScenario(scenarioId) {
+      const scenario = scenarioDefinitions[scenarioId];
+      if (!scenario) return;
+      activeScenarioId = scenarioId;
+      const selected = agents.find((agent) => agent.id === selectedAgentId);
+      if (!selected || hiddenAgentIds.has(selected.id) || !scenario.officeIds.includes(selected.officeId)) selectedAgentId = scenario.defaultAgent;
+      render();
+      liveRegion.textContent = `已切換至${scenario.label}情境。`;
+    }
+
+    scenarioPicker.addEventListener("change", () => setScenario(scenarioPicker.value));
+    restoreHiddenAgentsButton.addEventListener("click", restoreHiddenAgents);
+    document.addEventListener("click", (event) => {
+      if (!agentContextMenu.hidden && !agentContextMenu.contains(event.target)) closeAgentContextMenu();
+    });
+    document.addEventListener("pointerdown", (event) => {
+      if (!agentContextMenu.hidden && !agentContextMenu.contains(event.target) && !event.target.closest("[data-agent-bubble]")) {
+        closeAgentContextMenu();
+      }
+    }, true);
+    document.addEventListener("contextmenu", (event) => {
+      if (!event.target.closest(".agent-figure")) closeAgentContextMenu();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeAgentContextMenu();
+    });
+
+    function addDirectOverflowOffice() {
+      const directOffices = officeTemplates.filter((office) => window.AgentDeskOfficeRouter.isDirectOffice(office)).sort((a, b) => {
+        const aNumber = Number(String(a.id).match(/(\d+)$/)?.[1] || 0);
+        const bNumber = Number(String(b.id).match(/(\d+)$/)?.[1] || 0);
+        return aNumber - bNumber;
+      });
+      const previous = directOffices[directOffices.length - 1];
+      const previousNumber = Number(String(previous?.id || "direct-00").match(/(\d+)$/)?.[1] || 0);
+      const number = previousNumber + 1;
+      const previousLeft = previous ? parseFloat(previous.left) : 330 + defaultTileStep.x;
+      const previousTop = previous ? parseFloat(previous.top) : 110 + defaultTileStep.y;
+      const nextOffice = {
+        id: `direct-${String(number).padStart(2, "0")}`,
+        name: `Direct Office ${number}`,
+        typeLabel: "overflow office",
+        officeType: "direct",
+        capacity: 4,
+        left: `${previousLeft === 330 ? 330 + tileStep.x : 330}px`,
+        top: `${previousTop + tileStep.y}px`,
+        z: (previous?.z || 7) + 1,
+        seats: cloneSeats("direct"),
+        furniture: "direct"
+      };
+      officeTemplates = [...officeTemplates, nextOffice];
+      const scenario = scenarioDefinitions[activeScenarioId];
+      if (scenario && scenario.officeIds.some((officeId) => window.AgentDeskOfficeRouter.isDirectOffice(officeTemplates.find((office) => office.id === officeId)))) {
+        scenario.officeIds = [...scenario.officeIds, nextOffice.id];
+      }
+      return nextOffice.id;
+    }
+
+    function parseTimestamp(value) {
+      if (typeof value === "number" && Number.isFinite(value)) return value < 100000000000 ? value * 1000 : value;
+      const timestamp = Date.parse(value || "");
+      return Number.isNaN(timestamp) ? null : timestamp;
+    }
+
+    function hasNewerSourceActivity(agent, override) {
+      if (agent.sessionId !== override.sessionId) return true;
+      if (agent.status === "working" || agent.status === "blocked") return true;
+      const currentTimestamp = parseTimestamp(agent.updatedAt);
+      const acknowledgedTimestamp = parseTimestamp(override.updatedAt);
+      return currentTimestamp !== null && acknowledgedTimestamp !== null && currentTimestamp > acknowledgedTimestamp;
+    }
+
+    function applyStandbyOverrides(nextAgents) {
+      return nextAgents.map((agent) => {
+        const override = standbyOverrides.get(agent.id);
+        if (!override) return agent;
+        if (hasNewerSourceActivity(agent, override)) {
+          standbyOverrides.delete(agent.id);
+          persistStandbyOverrides();
+          return agent;
+        }
+        return { ...agent, status: "idle", duration: "待命", message: "已確認，待命中", priority: 10 };
+      });
+    }
+
+    function applySessionEvents(events, source = "sample-events") {
+      if (!window.AgentDeskSessionAdapter || !window.AgentDeskOfficeRouter) return false;
+      const result = window.AgentDeskSessionAdapter.mergeAgentStates(agents, events);
+      const mergedAgents = applyStandbyOverrides(result.agents);
+      let routing = window.AgentDeskOfficeRouter.route(mergedAgents, result.sessions, officeTemplates);
+      let overflowAttempts = 0;
+      while (routing.unplaced.some((item) => item.reason === "direct_offices_full") && overflowAttempts < 12) {
+        addDirectOverflowOffice();
+        routing = window.AgentDeskOfficeRouter.route(mergedAgents, result.sessions, officeTemplates);
+        overflowAttempts += 1;
+      }
+      agents = routing.agents;
+      scene.dataset.sessionSource = source;
+      scene.dataset.sessionCount = String(result.sessions.length);
+      scene.dataset.routingCount = String(routing.routes.length);
+      scene.dataset.routingUnplaced = String(routing.unplaced.length);
+      scene.dataset.overflowAttempts = String(overflowAttempts);
+      return true;
+    }
+
+    function applyLiveSnapshot(snapshot) {
+      if (!liveMode || !snapshot || !Array.isArray(snapshot.events)) return false;
+      const profiles = Array.isArray(snapshot.agents) ? snapshot.agents : [];
+      const fallbackSeats = [
+        { x: "25%", y: "67%", bubbleX: "18%", bubbleY: "-8px", bubbleTransform: "translate(-18%, -100%)" },
+        { x: "54%", y: "53%", bubbleX: "50%", bubbleY: "-3px", bubbleTransform: "translate(-50%, -100%)" },
+        { x: "77%", y: "66%", bubbleX: "86%", bubbleY: "-8px", bubbleTransform: "translate(-86%, -100%)" },
+        { x: "65%", y: "25%", bubbleX: "86%", bubbleY: "-4px", bubbleTransform: "translate(-86%, -100%)" }
+      ];
+      const colors = [["#6a4b3e", "#536b61"], ["#57413a", "#5d536a"], ["#805b45", "#4d6658"], ["#3f3836", "#576b80"]];
+      agents = profiles.map((profile, index) => {
+        const seat = fallbackSeats[index % fallbackSeats.length];
+        const color = colors[index % colors.length];
+        return {
+          ...profile,
+          officeId: profile.officeId || "direct-01",
+          kind: profile.kind || "worker",
+          status: profile.status || "idle",
+          duration: profile.duration || "--",
+          message: profile.message || "沒有最新回報",
+          hair: profile.hair || color[0],
+          coat: profile.coat || color[1],
+          x: profile.x || seat.x,
+          y: profile.y || seat.y,
+          bubbleX: profile.bubbleX || seat.bubbleX,
+          bubbleY: profile.bubbleY || seat.bubbleY,
+          bubbleTransform: profile.bubbleTransform || seat.bubbleTransform
+        };
+      });
+      if (!agents.some((agent) => agent.id === selectedAgentId && !hiddenAgentIds.has(agent.id))) {
+        selectedAgentId = agents.find((agent) => !hiddenAgentIds.has(agent.id))?.id || "";
+      }
+      officeTemplates = (baseOfficeTemplates || officeTemplates).map((office) => ({ ...office }));
+      const availableOfficeIds = new Set(["direct-01"]);
+      agents.forEach((agent) => {
+        if (officeTemplates.some((office) => office.id === agent.officeId)) availableOfficeIds.add(agent.officeId);
+      });
+      scenarioDefinitions.live = {
+        label: `Live Sessions · ${snapshot.meta?.sessionCount || snapshot.events.length}`,
+        officeIds: officeTemplates.filter((office) => availableOfficeIds.has(office.id)).map((office) => office.id),
+        defaultAgent: agents[0]?.id || ""
+      };
+      applySessionEvents(snapshot.events, "live-monitor");
+      const routedOfficeIds = new Set(agents.map((agent) => agent.officeId));
+      // 沒有任何 session 時仍保留一間空辦公室（direct-01），避免整個視窗變成空白透明區。
+      if (!routedOfficeIds.size) routedOfficeIds.add("direct-01");
+      scenarioDefinitions.live.officeIds = officeTemplates.filter((office) => routedOfficeIds.has(office.id)).map((office) => office.id);
+      scene.dataset.monitorGeneratedAt = snapshot.generatedAt || "";
+      scene.dataset.monitorStatus = "connected";
+      return true;
+    }
+
+    async function fetchLiveSnapshot() {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 1200);
+      try {
+        const response = await fetch(liveEndpoint, { cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error(`Live session request failed: ${response.status}`);
+        return await response.json();
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    async function refreshLiveSnapshot() {
+      try {
+        const snapshot = await fetchLiveSnapshot();
+        if (applyLiveSnapshot(snapshot)) render();
+      } catch (error) {
+        scene.dataset.monitorStatus = "offline";
+      }
+    }
+
+    function applyPreviewStatus() {
+      if (previewStatuses.length) {
+        const previewAgents = agents.filter((agent) => !hiddenAgentIds.has(agent.id)
+          && scenarioDefinitions[activeScenarioId]?.officeIds.includes(agent.officeId));
+        previewAgents.slice(0, previewStatuses.length).forEach((agent, index) => {
+          agent.status = previewStatuses[index];
+        });
+      }
+      if (!statusLabels[previewStatus]) return;
+      const statusAgent = agents.find((agent) => agent.id === selectedAgentId);
+      if (statusAgent) statusAgent.status = previewStatus;
+    }
+
+    function applyExternalData(data) {
+      if (!data || !Array.isArray(data.offices) || !Array.isArray(data.agents) || !Array.isArray(data.scenarios)) return false;
+      const nextScenarios = Object.fromEntries(data.scenarios.map((scenario) => [scenario.id, scenario]));
+      if (!nextScenarios[activeScenarioId]) activeScenarioId = data.scenarios[0].id;
+      officeTemplates = data.offices;
+      baseOfficeTemplates = data.offices.map((office) => ({ ...office }));
+      visualCalibration = data.visualCalibration || {};
+      floorProjection = data.geometry?.floorProjection || defaultFloorProjection;
+      tileStep = data.geometry?.tileStep || defaultTileStep;
+      scenarioDefinitions = nextScenarios;
+      if (liveMode) {
+        scenarioDefinitions.live = { label: "Live Sessions", officeIds: ["direct-01"], defaultAgent: "" };
+        activeScenarioId = "live";
+      }
+      agents = data.agents;
+      if (!agents.some((agent) => agent.id === selectedAgentId && !hiddenAgentIds.has(agent.id) && scenarioDefinitions[activeScenarioId].officeIds.includes(agent.officeId))) {
+        selectedAgentId = agents.find((agent) => !hiddenAgentIds.has(agent.id) && scenarioDefinitions[activeScenarioId].officeIds.includes(agent.officeId))?.id || scenarioDefinitions[activeScenarioId].defaultAgent;
+      }
+      scene.dataset.dataSource = "json";
+      return true;
+    }
+
+    async function boot() {
+      let sessionEvents = embeddedSessionEvents;
+      try {
+        const data = window.agentDeskDesktop?.loadOfficeData
+          ? await window.agentDeskDesktop.loadOfficeData()
+          : await fetch("./agentdesk-office-data.json", { cache: "no-store" }).then((response) => {
+            if (!response.ok) throw new Error(`Data request failed: ${response.status}`);
+            return response.json();
+          });
+        applyExternalData(data);
+      } catch (error) {
+        scene.dataset.dataSource = `embedded-fallback:${error.message}`;
+      }
+      let liveLoaded = false;
+      if (liveMode) {
+        try {
+          liveLoaded = applyLiveSnapshot(await fetchLiveSnapshot());
+        } catch (error) {
+          scene.dataset.monitorStatus = "offline";
+        }
+      }
+      if (!liveLoaded) {
+        try {
+          const response = await fetch("./agentdesk-session-events.sample.json", { cache: "no-store" });
+          if (!response.ok) throw new Error(`Session event request failed: ${response.status}`);
+          sessionEvents = await response.json();
+        } catch (error) {
+          scene.dataset.sessionSource = "embedded-fallback";
+        }
+        applySessionEvents(sessionEvents);
+      }
+      applyPreviewStatus();
+      render();
+      if (liveMode) setInterval(refreshLiveSnapshot, 2000);
+    }
+
+    boot();
+  </script>
+</body>
+</html>

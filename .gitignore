@@ -1,0 +1,27 @@
+# dependencies (rebuild with `npm install`)
+node_modules/
+
+# design-exploration reference images (not used by the app)
+assets/visual-samples/
+
+# vendored Codex app-server protocol schema (reference only, not used at runtime)
+bridge/codex-app-server-schema/
+
+# built app output
+AgentDesk-win32-x64/
+*.zip
+
+# internal planning notes (kept local, not published)
+AgentDesk 專案規劃.md
+AgentDesk Existing Session Monitor.md
+AgentDesk Office Tile Wireframe.md
+AgentDesk Session State Mapping.md
+AgentDesk Source Adapter Contract.md
+AgentDesk Desktop App 開發規劃.md
+AgentDesk 第一版畫面與流程規劃.md
+AgentDesk 視覺風格探索.md
+AgentDesk 角色出現規則.md
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db

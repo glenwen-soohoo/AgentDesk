@@ -1,0 +1,21 @@
+{
+  "defaults": {
+    "claude-code": {
+      "kind": "worker",
+      "namePrefix": "Claude"
+    },
+    "codex": {
+      "kind": "worker",
+      "namePrefix": "Codex"
+    }
+  },
+  "rules": [
+    {
+      "source": "claude-code",
+      "sessionId": "00000000-0000-0000-0000-000000000000",
+      "agentName": "Example Session",
+      "kind": "steward",
+      "officeId": "managed-01"
+    }
+  ]
+}

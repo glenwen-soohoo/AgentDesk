@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentDesk Isometric Office Demo</title>
+  <style>
+    :root {
+      --bg: #f2eadf;
+      --paper: #fff9ee;
+      --ink: #27313d;
+      --muted: #6d746d;
+      --line: #dac7aa;
+      --navy: #243353;
+      --brass: #b1843f;
+      --danger: #b85b4d;
+      --shadow: 0 28px 76px rgba(60, 42, 25, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      font-family: "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 58% 42%, rgba(177, 132, 63, 0.16), transparent 26%),
+        radial-gradient(circle at 40% 60%, rgba(95, 120, 92, 0.12), transparent 30%),
+        var(--bg);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .desktop-corner {
+      position: relative;
+      width: 720px;
+      height: 480px;
+      filter: drop-shadow(var(--shadow));
+    }
+
+    .office-art {
+      position: absolute;
+      left: 28px;
+      top: 38px;
+      width: 620px;
+      height: 388px;
+      object-fit: contain;
+      object-position: center;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .bubble {
+      position: absolute;
+      right: 28px;
+      top: 58px;
+      width: 268px;
+      padding: 14px 16px;
+      border: 1px solid rgba(218, 199, 170, 0.94);
+      border-radius: 18px;
+      background: rgba(255, 249, 238, 0.94);
+      box-shadow: 0 18px 38px rgba(60, 42, 25, 0.14);
+    }
+
+    .bubble::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      bottom: 32px;
+      width: 16px;
+      height: 16px;
+      border-left: 1px solid rgba(218, 199, 170, 0.94);
+      border-bottom: 1px solid rgba(218, 199, 170, 0.94);
+      background: rgba(255, 249, 238, 0.96);
+      transform: rotate(45deg);
+    }
+
+    .bubble-label {
+      margin: 0 0 6px;
+      color: #667c60;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .bubble h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .bubble p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .session-bubble {
+      position: absolute;
+      display: grid;
+      grid-template-columns: 10px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      min-width: 142px;
+      min-height: 40px;
+      padding: 8px 9px;
+      border: 1px solid rgba(218, 199, 170, 0.94);
+      border-radius: 13px;
+      background: rgba(255, 249, 238, 0.9);
+      box-shadow: 0 10px 20px rgba(60, 42, 25, 0.09);
+      z-index: 8;
+    }
+
+    .session-bubble::before {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-left: 1px solid rgba(218, 199, 170, 0.94);
+      border-bottom: 1px solid rgba(218, 199, 170, 0.94);
+      background: rgba(255, 249, 238, 0.94);
+      transform: rotate(45deg);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--brass);
+    }
+
+    .dot.blocked {
+      background: var(--danger);
+    }
+
+    .session-bubble strong {
+      display: block;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .session-bubble span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+
+    .session-bubble.clerivan {
+      left: 302px;
+      top: 318px;
+      min-width: 136px;
+    }
+
+    .session-bubble.clerivan::before {
+      left: 46px;
+      top: -6px;
+      transform: rotate(135deg);
+    }
+
+    .session-bubble.mira {
+      left: 78px;
+      top: 314px;
+    }
+
+    .session-bubble.mira::before {
+      right: 26px;
+      top: -6px;
+      transform: rotate(135deg);
+    }
+
+    .session-bubble.aki {
+      right: 24px;
+      top: 260px;
+    }
+
+    .session-bubble.aki::before {
+      left: 28px;
+      bottom: -6px;
+      transform: rotate(-45deg);
+    }
+
+    .session-bubble.bryn {
+      right: 96px;
+      top: 206px;
+    }
+
+    .session-bubble.bryn::before {
+      left: 26px;
+      bottom: -6px;
+      transform: rotate(-45deg);
+    }
+
+    .session-bubble.orin {
+      left: 410px;
+      bottom: 82px;
+    }
+
+    .session-bubble.orin::before {
+      left: 38px;
+      top: -6px;
+      transform: rotate(135deg);
+    }
+
+    .time {
+      min-width: 34px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: #eadfcb;
+      color: #6c5130;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .open-button {
+      position: absolute;
+      right: 36px;
+      bottom: 28px;
+      min-height: 34px;
+      padding: 0 14px;
+      border: 1px solid rgba(36, 51, 83, 0.22);
+      border-radius: 999px;
+      color: var(--paper);
+      background: var(--navy);
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(36, 51, 83, 0.18);
+    }
+
+    .caption {
+      position: absolute;
+      left: 118px;
+      bottom: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main class="desktop-corner" aria-label="AgentDesk 等視角小辦公室">
+    <img class="office-art" src="../assets/visual-samples/agentdesk-sample-04-isometric-office-multi-agent.png" alt="AgentDesk 等視角多角色小辦公室">
+
+    <aside class="bubble">
+      <p class="bubble-label">Clerivan reports</p>
+      <h1>有 1 位 agent 正在等你。</h1>
+      <p>Aki 已等待 7m。Bryn 的驗收少一張截圖，我先標成卡住。</p>
+    </aside>
+
+    <div class="session-bubble clerivan" aria-label="克雷利文總覽">
+      <span class="dot"></span>
+      <div>
+        <strong>Clerivan</strong>
+        <span>5 sessions</span>
+      </div>
+      <span class="time">now</span>
+    </div>
+
+    <div class="session-bubble mira" aria-label="Mira session">
+      <span class="dot"></span>
+      <div>
+        <strong>Mira</strong>
+        <span>整理 provider</span>
+      </div>
+      <span class="time">18m</span>
+    </div>
+
+    <div class="session-bubble aki" aria-label="Aki session">
+      <span class="dot"></span>
+      <div>
+        <strong>Aki</strong>
+        <span>等你確認命名</span>
+      </div>
+      <span class="time">7m</span>
+    </div>
+
+    <div class="session-bubble bryn" aria-label="Bryn session">
+      <span class="dot blocked"></span>
+      <div>
+        <strong>Bryn</strong>
+        <span>缺少截圖驗收</span>
+      </div>
+      <span class="time">12m</span>
+    </div>
+
+    <div class="session-bubble orin" aria-label="Orin session">
+      <span class="dot"></span>
+      <div>
+        <strong>Orin</strong>
+        <span>完成待升庫</span>
+      </div>
+      <span class="time">done</span>
+    </div>
+
+    <button class="open-button" type="button">Open session</button>
+    <p class="caption">Wireframe：每個 session 泡泡固定在自己的辦公位置附近。</p>
+  </main>
+</body>
+</html>

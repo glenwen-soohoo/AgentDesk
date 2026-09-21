@@ -1,0 +1,42 @@
+[
+  {
+    "sessionId": "claude-20260915-001",
+    "source": "claude-code",
+    "agentId": "aki",
+    "reportTo": "clerivan",
+    "state": "waiting_user",
+    "startedAt": "2026-09-15T09:42:00+08:00",
+    "updatedAt": "2026-09-15T09:49:00+08:00",
+    "summary": "等 Glen 確認命名"
+  },
+  {
+    "sessionId": "codex-20260915-014",
+    "source": "codex",
+    "agentId": "bryn",
+    "reportTo": "clerivan",
+    "state": "permission_required",
+    "startedAt": "2026-09-15T09:37:00+08:00",
+    "updatedAt": "2026-09-15T09:49:00+08:00",
+    "summary": "缺一張驗收截圖"
+  },
+  {
+    "sessionId": "claude-20260915-022",
+    "source": "claude-code",
+    "agentId": "nora",
+    "reportTo": null,
+    "state": "running",
+    "startedAt": "2026-09-15T09:40:00+08:00",
+    "updatedAt": "2026-09-15T09:49:00+08:00",
+    "summary": "整理素材 brief"
+  },
+  {
+    "sessionId": "codex-20260915-028",
+    "source": "codex",
+    "agentId": "mira",
+    "reportTo": "clerivan",
+    "state": "completed",
+    "startedAt": "2026-09-15T09:18:00+08:00",
+    "updatedAt": "2026-09-15T09:44:00+08:00",
+    "summary": "provider 整理完成"
+  }
+]
