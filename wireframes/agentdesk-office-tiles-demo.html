@@ -865,6 +865,17 @@
       padding: 6px 8px;
     }
 
+    /* 依座位水平對齊：左側座位錨右緣、右側座位錨左緣，讓靠角色的內側邊固定，
+       泡泡寬度改變（工作中半寬 vs 全寬）時不會左右位移。steward/正上保持置中。 */
+    .agent-bubble[data-halign="right"] {
+      transform: translate(-100%, -50%) scale(var(--bubble-scale, 1));
+      transform-origin: right center;
+    }
+    .agent-bubble[data-halign="left"] {
+      transform: translate(0, -50%) scale(var(--bubble-scale, 1));
+      transform-origin: left center;
+    }
+
     .agent-bubble:hover,
     .agent-bubble:focus-visible {
       outline: 2px solid var(--brass);
@@ -1735,7 +1746,7 @@
           const shouldShowBubble = true;
           if (shouldShowBubble) {
             const bubbleSummary = agent.status === "working" ? "" : `<span>${escapeHtml(agent.message)}</span>`;
-            bubbleMarkup.push(`<span class="agent-bubble status-${agent.status}${agent.status === "working" ? " is-working" : ""}" data-agent-bubble="true" data-agent-id="${escapeHtml(agent.id)}" data-seat-id="${escapeHtml(seat.id || "seat")}" data-session-id="${escapeHtml(agent.sessionId || agent.id)}" data-office-id="${escapeHtml(office.id)}" data-placement="${bubblePlacementValue}" style="--bubble-x:${bubblePosition.x}%;--bubble-y:${bubblePosition.y}%;--bubble-scale:${bubblePosition.scale || 1}" tabindex="0" aria-label="開啟 ${escapeHtml(agent.name)} 的操作選單"><strong class="bubble-agent-name"><span class="state-pip" aria-hidden="true"></span>${escapeHtml(agent.name)}</strong><strong class="bubble-status">${escapeHtml(statusLabel)} · ${escapeHtml(durationLabel)}</strong>${bubbleSummary}</span>`);
+            bubbleMarkup.push(`<span class="agent-bubble status-${agent.status}${agent.status === "working" ? " is-working" : ""}" data-agent-bubble="true" data-agent-id="${escapeHtml(agent.id)}" data-seat-id="${escapeHtml(seat.id || "seat")}" data-session-id="${escapeHtml(agent.sessionId || agent.id)}" data-office-id="${escapeHtml(office.id)}" data-placement="${bubblePlacementValue}" data-halign="${(seat.id || "").includes("left") ? "right" : (seat.id || "").includes("right") ? "left" : "center"}" style="--bubble-x:${bubblePosition.x}%;--bubble-y:${bubblePosition.y}%;--bubble-scale:${bubblePosition.scale || 1}" tabindex="0" aria-label="開啟 ${escapeHtml(agent.name)} 的操作選單"><strong class="bubble-agent-name"><span class="state-pip" aria-hidden="true"></span>${escapeHtml(agent.name)}</strong><strong class="bubble-status">${escapeHtml(statusLabel)} · ${escapeHtml(durationLabel)}</strong>${bubbleSummary}</span>`);
           }
           const button = `
             <button class="agent-figure agent-${agent.kind} status-${agent.status}${isWorking ? " is-sitting" : ""}${agent.status === "done" ? " is-front-of-desk" : ""}${selectedAgentId === agent.id ? " is-selected" : ""}${isReporting ? " is-reporting" : ""}${shouldShowBubble ? " has-bubble" : ""}" data-agent-id="${agent.id}" data-seat-id="${escapeHtml(seat.id || "seat")}" style="--agent-x:${agentX};--agent-y:${agentY};--figure-width:${imageSize[0] * scale}px;--figure-height:${imageSize[1] * scale}px;--agent-hair:${agent.hair};--agent-coat:${agent.coat}" type="button" aria-label="${escapeHtml(agent.name)}，${escapeHtml(statusLabel)}，${escapeHtml(agent.message)}">

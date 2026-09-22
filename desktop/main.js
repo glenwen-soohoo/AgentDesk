@@ -5,6 +5,14 @@ const path = require("node:path");
 
 const { SessionMonitor, startServer } = require("../bridge/agentdesk-session-monitor.js");
 
+// AgentDesk 是常駐小工具：主行程任何未預期例外只記錄、不彈出致命錯誤框打斷使用者。
+process.on("uncaughtException", (error) => {
+  console.error("[AgentDesk] uncaught exception in main process", error);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("[AgentDesk] unhandled rejection in main process", reason);
+});
+
 const PREFERRED_MONITOR_PORT = 4317;
 const INITIAL_WINDOW_WIDTH = 520;
 const INITIAL_WINDOW_HEIGHT = 360;
@@ -110,9 +118,15 @@ function createWindow(monitorPort) {
 function clampWindowSize(width, height, workArea) {
   const availableWidth = Math.max(MIN_WINDOW_WIDTH, workArea.width - SCREEN_MARGIN * 2);
   const availableHeight = Math.max(MIN_WINDOW_HEIGHT, workArea.height - SCREEN_MARGIN * 2);
+  const rawWidth = Number(width);
+  const rawHeight = Number(height);
+  const safeWidth = Number.isFinite(rawWidth) && rawWidth > 0 ? rawWidth : INITIAL_WINDOW_WIDTH;
+  const safeHeight = Number.isFinite(rawHeight) && rawHeight > 0 ? rawHeight : INITIAL_WINDOW_HEIGHT;
+  // 全部 Math.round：分數 DPI 縮放下 workArea 可能是非整數，setBounds 只吃整數，
+  // 否則會拋 "conversion failure from" 讓主行程崩潰。
   return {
-    width: Math.min(MAX_WINDOW_WIDTH, availableWidth, Math.max(MIN_WINDOW_WIDTH, Math.round(Number(width) || INITIAL_WINDOW_WIDTH))),
-    height: Math.min(MAX_WINDOW_HEIGHT, availableHeight, Math.max(MIN_WINDOW_HEIGHT, Math.round(Number(height) || INITIAL_WINDOW_HEIGHT)))
+    width: Math.round(Math.min(MAX_WINDOW_WIDTH, availableWidth, Math.max(MIN_WINDOW_WIDTH, safeWidth))),
+    height: Math.round(Math.min(MAX_WINDOW_HEIGHT, availableHeight, Math.max(MIN_WINDOW_HEIGHT, safeHeight)))
   };
 }
 
@@ -131,10 +145,16 @@ function resizeWindowToContent(width, height) {
 
   nextBounds.x = Math.min(nextBounds.x, workArea.x + workArea.width - size.width - SCREEN_MARGIN);
   nextBounds.y = Math.min(nextBounds.y, workArea.y + workArea.height - size.height - SCREEN_MARGIN);
-  nextBounds.x = Math.max(nextBounds.x, workArea.x + SCREEN_MARGIN);
-  nextBounds.y = Math.max(nextBounds.y, workArea.y + SCREEN_MARGIN);
+  nextBounds.x = Math.round(Math.max(nextBounds.x, workArea.x + SCREEN_MARGIN));
+  nextBounds.y = Math.round(Math.max(nextBounds.y, workArea.y + SCREEN_MARGIN));
+  nextBounds.width = Math.round(size.width);
+  nextBounds.height = Math.round(size.height);
 
-  mainWindow.setBounds(nextBounds);
+  try {
+    mainWindow.setBounds(nextBounds);
+  } catch (error) {
+    console.error("[AgentDesk] setBounds failed", nextBounds, error);
+  }
 }
 
 ipcMain.handle("office-data:read", async (event) => {
@@ -154,7 +174,11 @@ ipcMain.on("window:move-by", (event, payload = {}) => {
   const deltaY = Number(payload.deltaY);
   if (!Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
   const bounds = mainWindow.getBounds();
-  mainWindow.setPosition(Math.round(bounds.x + deltaX), Math.round(bounds.y + deltaY));
+  try {
+    mainWindow.setPosition(Math.round(bounds.x + deltaX), Math.round(bounds.y + deltaY));
+  } catch (error) {
+    console.error("[AgentDesk] setPosition failed", error);
+  }
 });
 
 ipcMain.on("window:minimize", (event) => {

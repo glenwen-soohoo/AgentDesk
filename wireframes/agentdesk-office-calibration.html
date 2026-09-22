@@ -280,6 +280,16 @@
       font-size: 26px;
     }
 
+    /* 與正式畫面同一套水平對齊：x<45 錨右緣、x>55 錨左緣，內側邊固定不隨寬度飄。 */
+    .bubble-object[data-halign="right"] {
+      transform: translate(-100%, -50%) scale(var(--object-scale, 1));
+      transform-origin: right center;
+    }
+    .bubble-object[data-halign="left"] {
+      transform: translate(0, -50%) scale(var(--object-scale, 1));
+      transform-origin: left center;
+    }
+
     .bubble-object strong,
     .bubble-object span { display: block; }
 
@@ -511,7 +521,11 @@
     function bubbleMarkup(role, bubble) {
       const working = state.statuses[role.id] === "working";
       const className = `calibration-object bubble-object status-${state.statuses[role.id]}${working ? " is-working" : ""}${selectedObjectId === `bubble:${role.id}` ? " is-selected" : ""}`;
-      return `<div class="${className}" data-object-id="bubble:${role.id}" style="${objectPosition(bubble)}"><strong>${role.name}</strong><strong>${statusLabel(state.statuses[role.id])} · ${working ? "工作時間" : "狀態時間"}</strong><span>${working ? "" : "目前回報內容"}</span></div>`;
+      // 依座位/角色決定水平對齊（與正式畫面 calibrationRoleBySeat 對應）：
+      // 左側座位 worker-left→aki、worker-front-left→mira 右錨；右側 worker-right→bryn、worker-front-right→vera 左錨。
+      const halign = (role.id === "aki" || role.id === "mira") ? "right"
+        : (role.id === "bryn" || role.id === "vera") ? "left" : "center";
+      return `<div class="${className}" data-object-id="bubble:${role.id}" data-halign="${halign}" style="${objectPosition(bubble)}"><strong>${role.name}</strong><strong>${statusLabel(state.statuses[role.id])} · ${working ? "工作時間" : "狀態時間"}</strong><span>${working ? "" : "目前回報內容"}</span></div>`;
     }
 
     function renderRoleControls() {
