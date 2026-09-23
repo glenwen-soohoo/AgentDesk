@@ -1011,6 +1011,25 @@
       transform: rotate(225deg);
     }
 
+    /* 尖角指向角色的「頭」：角色在泡泡下方→尖角在底邊朝下；在上方→頂邊朝上。
+       水平位置 --tail-x 對齊角色的 X（在盒子內百分比，由 JS 依盒子幾何算出）。
+       放在最後以覆蓋上面所有 data-placement 規則。 */
+    .agent-bubble[data-tail-v="bottom"]::after {
+      left: var(--tail-x, 50%);
+      right: auto;
+      top: auto;
+      bottom: -6px;
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .agent-bubble[data-tail-v="top"]::after {
+      left: var(--tail-x, 50%);
+      right: auto;
+      top: -6px;
+      bottom: auto;
+      transform: translateX(-50%) rotate(225deg);
+    }
+
     .agent-bubble > strong,
     .agent-bubble > span { display: block; }
 
@@ -1777,7 +1796,19 @@
           const shouldShowBubble = true;
           if (shouldShowBubble) {
             const bubbleSummary = agent.status === "working" ? "" : `<span>${escapeHtml(agent.message)}</span>`;
-            bubbleMarkup.push(`<span class="agent-bubble status-${agent.status}${agent.status === "working" ? " is-working" : ""}" data-agent-bubble="true" data-agent-id="${escapeHtml(agent.id)}" data-seat-id="${escapeHtml(seat.id || "seat")}" data-session-id="${escapeHtml(agent.sessionId || agent.id)}" data-office-id="${escapeHtml(office.id)}" data-placement="${bubblePlacementValue}" data-halign="${(seat.id || "").includes("left") ? "right" : (seat.id || "").includes("right") ? "left" : "center"}" style="--bubble-x:${bubblePosition.x}%;--bubble-y:${bubblePosition.y}%;--bubble-scale:${bubblePosition.scale || 1}" tabindex="0" aria-label="開啟 ${escapeHtml(agent.name)} 的操作選單"><strong class="bubble-agent-name"><span class="state-pip" aria-hidden="true"></span>${escapeHtml(agent.name)}</strong><strong class="bubble-status">${escapeHtml(statusLabel)} · ${escapeHtml(durationLabel)}</strong>${bubbleSummary}</span>`);
+            // 盒子水平錨定：左側座位錨右緣、右側錨左緣（避免工作中半寬與全寬位移）。
+            const halign = (seat.id || "").includes("left") ? "right" : (seat.id || "").includes("right") ? "left" : "center";
+            // 尖角：指向角色的頭。角色在泡泡下方→底邊朝下；在上方→頂邊朝上；水平對齊角色 X。
+            const charX = parseFloat(agentX);
+            const charY = parseFloat(agentY);
+            const boxWidthPct = ((isWorking ? 94 : 188) * (bubblePosition.scale || 1)) / tileWidth * 100;
+            const boxLeft = halign === "right" ? bubblePosition.x - boxWidthPct
+              : halign === "left" ? bubblePosition.x
+              : bubblePosition.x - boxWidthPct / 2;
+            let tailX = (Number.isFinite(charX) && boxWidthPct > 0) ? ((charX - boxLeft) / boxWidthPct) * 100 : 50;
+            tailX = Math.max(14, Math.min(86, tailX));
+            const tailV = (Number.isFinite(charY) && bubblePosition.y > charY) ? "top" : "bottom";
+            bubbleMarkup.push(`<span class="agent-bubble status-${agent.status}${agent.status === "working" ? " is-working" : ""}" data-agent-bubble="true" data-agent-id="${escapeHtml(agent.id)}" data-seat-id="${escapeHtml(seat.id || "seat")}" data-session-id="${escapeHtml(agent.sessionId || agent.id)}" data-office-id="${escapeHtml(office.id)}" data-halign="${halign}" data-tail-v="${tailV}" style="--bubble-x:${bubblePosition.x}%;--bubble-y:${bubblePosition.y}%;--bubble-scale:${bubblePosition.scale || 1};--tail-x:${tailX}%" tabindex="0" aria-label="開啟 ${escapeHtml(agent.name)} 的操作選單"><strong class="bubble-agent-name"><span class="state-pip" aria-hidden="true"></span>${escapeHtml(agent.name)}</strong><strong class="bubble-status">${escapeHtml(statusLabel)} · ${escapeHtml(durationLabel)}</strong>${bubbleSummary}</span>`);
           }
           const button = `
             <button class="agent-figure agent-${agent.kind} status-${agent.status}${isWorking ? " is-sitting" : ""}${agent.status === "done" ? " is-front-of-desk" : ""}${selectedAgentId === agent.id ? " is-selected" : ""}${isReporting ? " is-reporting" : ""}${shouldShowBubble ? " has-bubble" : ""}" data-agent-id="${agent.id}" data-seat-id="${escapeHtml(seat.id || "seat")}" style="--agent-x:${agentX};--agent-y:${agentY};--figure-width:${imageSize[0] * scale}px;--figure-height:${imageSize[1] * scale}px;--agent-hair:${agent.hair};--agent-coat:${agent.coat}" type="button" aria-label="${escapeHtml(agent.name)}，${escapeHtml(statusLabel)}，${escapeHtml(agent.message)}">
