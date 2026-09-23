@@ -89,6 +89,13 @@
       background: transparent;
     }
 
+    body.desktop-mode {
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: transparent;
+    }
+
     .desktop-mode .app {
       width: 1200px;
       padding: 0;
@@ -1415,9 +1422,33 @@
     function setupDesktopChrome() {
       if (!desktopMode) return;
       document.body.classList.add("desktop-mode");
+      // 桌面模式視窗貼合內容，關掉根層捲軸，避免 body 撐出 XY 滑桿。
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
     }
 
     setupDesktopChrome();
+
+    // 透明區塊點穿到下面視窗：整窗設為 ignore-mouse（forward 仍收到滑鼠移動），
+    // 滑鼠移到辦公室/角色/泡泡上才開啟互動，移到空白透明處就點穿。
+    function setupDesktopClickThrough() {
+      if (!desktopMode || !window.agentDeskDesktop?.setClickThrough) return;
+      const interactiveSelector = ".office-tile, .agent-bubble, .hidden-agent-control, .agent-context-menu";
+      let ignoring = null;
+      function update(x, y) {
+        if (document.body.classList.contains("floor-dragging")) return; // 拖曳視窗中不切換
+        const el = document.elementFromPoint(x, y);
+        const overInteractive = Boolean(el && el.closest && el.closest(interactiveSelector));
+        const nextIgnore = !overInteractive;
+        if (nextIgnore !== ignoring) {
+          ignoring = nextIgnore;
+          window.agentDeskDesktop.setClickThrough(nextIgnore);
+        }
+      }
+      window.addEventListener("mousemove", (event) => update(event.clientX, event.clientY), true);
+    }
+
+    setupDesktopClickThrough();
 
     function setupDesktopFloorDrag() {
       if (!desktopMode) return;

@@ -212,6 +212,12 @@ ipcMain.on("window:resize-to-content", (event, payload = {}) => {
   applyContentSize();
 });
 
+ipcMain.on("window:set-click-through", (event, ignore) => {
+  if (event.sender !== mainWindow?.webContents || !mainWindow || mainWindow.isDestroyed()) return;
+  // forward:true 讓 renderer 在點穿狀態仍收得到滑鼠移動，才能偵測何時移回互動區。
+  mainWindow.setIgnoreMouseEvents(Boolean(ignore), { forward: true });
+});
+
 ipcMain.on("window:move-by", (event, payload = {}) => {
   if (event.sender !== mainWindow?.webContents || !mainWindow || mainWindow.isDestroyed()) return;
   const deltaX = Number(payload.deltaX);
