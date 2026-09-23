@@ -18,14 +18,19 @@ const INITIAL_WINDOW_WIDTH = 520;
 const INITIAL_WINDOW_HEIGHT = 360;
 const MIN_WINDOW_WIDTH = 220;
 const MIN_WINDOW_HEIGHT = 180;
-const MAX_WINDOW_WIDTH = 1800;
-const MAX_WINDOW_HEIGHT = 1200;
+const MAX_WINDOW_WIDTH = 4000;
+const MAX_WINDOW_HEIGHT = 2600;
 const SCREEN_MARGIN = 24;
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.1;
 
 let mainWindow = null;
 let monitorServer = null;
 let localMonitor = null;
 let hasSizedToContent = false;
+// 內容原始尺寸（CSS px，未乘縮放）；縮放時視窗 = 內容尺寸 × zoomFactor。
+let lastContentSize = { width: INITIAL_WINDOW_WIDTH, height: INITIAL_WINDOW_HEIGHT };
 
 function isHealthyMonitor(port) {
   return new Promise((resolve) => {
@@ -107,6 +112,14 @@ function createWindow(monitorPort) {
     }
   });
 
+  mainWindow.webContents.on("before-input-event", (event, input) => {
+    if (input.type !== "keyDown" || !(input.control || input.meta)) return;
+    if (applyZoomKey(input.key)) event.preventDefault();
+  });
+
+  // Ctrl+滾輪縮放：Chromium 改了 zoom 後，同步把視窗長到對應大小。
+  mainWindow.webContents.on("zoom-changed", () => applyContentSize());
+
   mainWindow.once("ready-to-show", () => mainWindow.show());
 
   mainWindow.on("closed", () => {
@@ -157,6 +170,32 @@ function resizeWindowToContent(width, height) {
   }
 }
 
+function currentZoomFactor() {
+  if (!mainWindow || mainWindow.isDestroyed()) return 1;
+  const zoom = mainWindow.webContents.getZoomFactor();
+  return Number.isFinite(zoom) && zoom > 0 ? zoom : 1;
+}
+
+// 視窗大小 = 內容原始尺寸 × 目前縮放，讓 Ctrl +/- 放大時視窗跟著長、不會被裁掉。
+function applyContentSize() {
+  const zoom = currentZoomFactor();
+  resizeWindowToContent(lastContentSize.width * zoom, lastContentSize.height * zoom);
+}
+
+// 自己攔截 Ctrl +/- / 0：設定縮放並同步視窗大小（Chromium 內建縮放不會動視窗，導致放大看不出來）。
+function applyZoomKey(key) {
+  if (!mainWindow || mainWindow.isDestroyed()) return false;
+  const web = mainWindow.webContents;
+  let zoom = currentZoomFactor();
+  if (key === "=" || key === "+" || key === "Add") zoom = Math.min(MAX_ZOOM, zoom + ZOOM_STEP);
+  else if (key === "-" || key === "Subtract") zoom = Math.max(MIN_ZOOM, zoom - ZOOM_STEP);
+  else if (key === "0") zoom = 1;
+  else return false;
+  web.setZoomFactor(Math.round(zoom * 100) / 100);
+  applyContentSize();
+  return true;
+}
+
 ipcMain.handle("office-data:read", async (event) => {
   if (event.sender !== mainWindow?.webContents) throw new Error("Untrusted AgentDesk data request");
   const filePath = path.join(__dirname, "..", "wireframes", "agentdesk-office-data.json");
@@ -165,7 +204,12 @@ ipcMain.handle("office-data:read", async (event) => {
 
 ipcMain.on("window:resize-to-content", (event, payload = {}) => {
   if (event.sender !== mainWindow?.webContents) return;
-  resizeWindowToContent(payload.width, payload.height);
+  const width = Number(payload.width);
+  const height = Number(payload.height);
+  if (Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0) {
+    lastContentSize = { width, height };
+  }
+  applyContentSize();
 });
 
 ipcMain.on("window:move-by", (event, payload = {}) => {
